@@ -1,0 +1,50 @@
+
+
+If first serious python project:
+sudo pip install --upgrade pip
+pip install virtualenv
+pip install virtualwrapper
+
+
+PROJECT FIRST INIT:
+===================
+
+source /usr/local/bin/virtualenvwrapper.sh
+
+mkvirtualenv bsx-sab
+workon bsx-sab
+pip install easydict
+pip freeze > requirements.txt
+
+
+PROJECT INIT:
+===================
+
+source /usr/local/bin/virtualenvwrapper.sh
+
+mkvirtualenv bsx-sab
+workon bsx-sab
+pip install -r requirements.txt
+
+
+PROJECT USE
+
+In my .profile:
+alias s='cd ~/dev/kw2/git/bsx-sab; source /usr/local/bin/virtualenvwrapper.sh; workon bsx-sab'
+
+WHEN INSTALLING NEW STUFF:
+
+pip freeze > requirements.txt
+
+
+To refresh the environnement (i.e. After useless package installation).
+rm -rf ~/.virtualenvs/bsx-stats
+mkvirtualenv bsx-stats
+workon bsx-stats
+pip install -r requirements.txt
+
+
+ECLIPSE INTEGRATION:
+====================
+
+Refer to Install Jack.doc
