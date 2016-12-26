@@ -11,8 +11,8 @@ PROJECT FIRST INIT:
 
 source /usr/local/bin/virtualenvwrapper.sh
 
-mkvirtualenv bsx-sab
-workon bsx-sab
+mkvirtualenv hdfsmirror
+workon hdfsmirror
 pip install easydict
 pip freeze > requirements.txt
 
@@ -22,15 +22,15 @@ PROJECT INIT:
 
 source /usr/local/bin/virtualenvwrapper.sh
 
-mkvirtualenv bsx-sab
-workon bsx-sab
+mkvirtualenv hdfsmirror
+workon hdfsmirror
 pip install -r requirements.txt
 
 
 PROJECT USE
 
 In my .profile:
-alias s='cd ~/dev/kw2/git/bsx-sab; source /usr/local/bin/virtualenvwrapper.sh; workon bsx-sab'
+alias s='cd ~/dev/kw2/git/hdfsmirror; source /usr/local/bin/virtualenvwrapper.sh; workon hdfsmirror'
 
 WHEN INSTALLING NEW STUFF:
 
@@ -38,9 +38,9 @@ pip freeze > requirements.txt
 
 
 To refresh the environnement (i.e. After useless package installation).
-rm -rf ~/.virtualenvs/bsx-stats
-mkvirtualenv bsx-stats
-workon bsx-stats
+rm -rf ~/.virtualenvs/hdfsmirror
+mkvirtualenv hdfsmirror
+workon hdfsmirror
 pip install -r requirements.txt
 
 
