@@ -77,46 +77,35 @@ def walkInHdfs(webHdfs, current, fileList, prefLen):
 def main():
     #mydir =  os.path.dirname(os.path.realpath(__file__)) 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--src', required=True)
-    parser.add_argument('--dst', required=True)
+    parser.add_argument('--local', required=True)
+    parser.add_argument('--hdfs', required=True)
     parser.add_argument('--webHdfsEndpoint', required=False)
     parser.add_argument('--hadoopConfDir', required=False)
     parser.add_argument('--hdfsUser', required=False)
     parser.add_argument('--put', action='store_true')
     parser.add_argument('--get', action='store_true')
+    parser.add_argument('--diff', action='store_true')
 
     param = parser.parse_args()
     if param.put and param.get:
         misc.ERROR("Only one of --put or --get must be set")
-    if not param.put and not param.get:
+    if not param.put and not param.get and not param.diff:
         misc.ERROR("One of --put or --get must be set")
 
-    src = param.src
-    dst = param.dst
+    localPath = param.local
+    hdfsPath = param.hdfs
     
     webHdfs = WebHDFS.lookup(param.webHdfsEndpoint, param.hadoopConfDir, None if param.hdfsUser == None else "user.name=" + param.hdfsUser)
-    
-    if(param.put):
-        if not os.path.isdir(src):
-            misc.ERROR("{0} must be an existing folder".format(src))
-        localFiles = buildLocalTree(src)
-        fs = webHdfs.getFileStatus(dst)
-        if fs == None:
-            misc.ERROR("Path {0} non existing on HDFS", dst)
-        if fs.type != "DIRECTORY":
-            misc.ERROR("HDFS path {0} is not a directory", dst)
-        hdfsFiles = buildHdfsTree(webHdfs, dst)
-    else:
-        if not os.path.isdir(dst):
-            misc.ERROR("{0} must be an existing folder".format(dst))
-        localFiles = buildLocalTree(dst)
-        fs = webHdfs.getFileStatus(src)
-        if fs == None:
-            misc.ERROR("Path {0} non existing on HDFS", src)
-        if fs.type != "DIRECTORY":
-            misc.ERROR("HDFS path {0} is not a directory", src)
-        hdfsFiles = buildHdfsTree(webHdfs, src)
-        
+
+    if not os.path.isdir(localPath):
+        misc.ERROR("{0} must be an existing folder".format(localPath))
+    localFiles = buildLocalTree(localPath)
+    fs = webHdfs.getFileStatus(hdfsPath)
+    if fs == None:
+        misc.ERROR("Path {0} non existing on HDFS", hdfsPath)
+    if fs.type != "DIRECTORY":
+        misc.ERROR("HDFS path {0} is not a directory", hdfsPath)
+    hdfsFiles = buildHdfsTree(webHdfs, hdfsPath)
 
     misc.pprint(localFiles)
     misc.pprint(hdfsFiles)

@@ -15,14 +15,10 @@
 
 
 import os
-import httplib2
 from xml.dom import minidom
 import misc
+import requests
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 
 class WebHDFS:
@@ -37,12 +33,11 @@ class WebHDFS:
     def test(self):
         url = "http://{0}/webhdfs/v1/?{1}op=GETFILESTATUS".format(self.endpoint, self.auth)
         try:
-            h = httplib2.Http()
-            resp, _ = h.request(url, "GET")
-            if resp.status == 200:
+            resp = requests.get(url)
+            if resp.status_code == 200:
                 return (True, "")
             else: 
-                return (False, "{0}  =>  Response code: {1}".format(url, resp.status))
+                return (False, "{0}  =>  Response code: {1}".format(url, resp.status_code))
         except Exception as e:
             return (False, "{0}  =>  Response code: {1}".format(url, e.strerror))
                 
@@ -56,30 +51,30 @@ class WebHDFS:
 
     def getFileStatus(self, path):
         url = "http://{0}/webhdfs/v1{1}?{2}op=GETFILESTATUS".format(self.endpoint, path, self.auth)
-        h = httplib2.Http()
-        resp, content = h.request(url, "GET")
-        if resp.status == 200:
+        resp = requests.get(url)
+        if resp.status_code == 200:
             #print content
-            result = json.loads(content)
+            result = resp.json()
             fileStatus = WebHDFS.FileStatus()
             fileStatus.owner = result['FileStatus']['owner']
             fileStatus.group = result['FileStatus']['group']
             fileStatus.permission = result['FileStatus']['permission']
             fileStatus.type = result['FileStatus']['type']
             return fileStatus
-        elif resp.status == 404:
+        elif resp.status_code == 404:
+            return None
+        elif resp.status_code == 403:
             return None
         else:
-            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status, url))
+            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
                             
     def listDirContent(self, path):
         url = "http://{0}/webhdfs/v1{1}?{2}op=LISTSTATUS".format(self.endpoint, path, self.auth)
         print(url)
-        h = httplib2.Http()
-        resp, content = h.request(url, "GET")
-        if resp.status == 200:
+        resp = requests.get(url)
+        if resp.status_code == 200:
             #print content
-            result = json.loads(content)
+            result = resp.json()
             #misc.pprint(result)
             files = []
             directories = []
@@ -91,10 +86,12 @@ class WebHDFS:
                 else:
                     misc.ERROR("Unknown directory entry type: {0}".format(f['type']))
             return(directories, files)
-        elif resp.status == 404:
+        elif resp.status_code == 404:
+            return None
+        elif resp.status_code == 403:
             return None
         else:
-            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status, url))
+            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
         
                 
 def lookup(webHdfsEndpoint=None, hadoopConfDir=None, auth=None):          
