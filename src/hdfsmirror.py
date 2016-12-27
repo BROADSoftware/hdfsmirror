@@ -185,7 +185,15 @@ def main():
             webHDFS.putFileToHdfs(localPath, hdfsPath, fileSize)
             modTime = localFiles['files'][f]['modificationTime']
             webHDFS.setModificationTime(hdfsPath, modTime)
-    
+    elif param.get:
+        for f in inHdfsOnly:
+            localPath = os.path.join(localFiles['rroot'], f)
+            misc.ensureFolder(os.path.dirname(localPath))
+            hdfsPath = os.path.join(hdfsFiles['rroot'], f)
+            webHDFS.getFileFromHdfs(localPath, hdfsPath)
+            modTime = hdfsFiles['files'][f]['modificationTime']
+            os.utime(localPath, (modTime, modTime))
+        
 
 if __name__ == '__main__':
     sys.exit(main())

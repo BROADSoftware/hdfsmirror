@@ -16,7 +16,8 @@
 
 import pprint
 import StringIO
-
+import errno
+import os
 
 prettyPrinter = pprint.PrettyPrinter(indent=2)
 
@@ -42,4 +43,15 @@ def ERROR(err, *args):
     #raise Exception("xx")
     exit(1)
 
+
+
+def ensureFolder(path):
+    try:
+        os.makedirs(path)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
+        else:
+            pass
+        
 

@@ -91,7 +91,7 @@ class WebHDFS:
                 
     CHUNK_SIZE = 1024 * 1024
                      
-    def putFileToHdfs(self, localPath, hdfsPath, fileSize=None):
+    def putFileToHdfs2(self, localPath, hdfsPath, fileSize=None):
         logger.debug("putFileToHdfs(localPath={0}, hdfsPath={1}, fileSize={2})".format(localPath, hdfsPath, fileSize))
         if(fileSize == None):   # Compute size if not provided
             stat = os.stat(localPath)
@@ -105,13 +105,27 @@ class WebHDFS:
         url2 = resp.headers['location']    
         logger.debug(url2)
         if fileSize < WebHDFS.CHUNK_SIZE:
-            f = open(localPath, "r")
+            f = open(localPath, "rb")
             fileData = f.read(WebHDFS.CHUNK_SIZE)
             resp2 = requests.put(url2, data=fileData, headers={'content-type': 'application/octet-stream'})
             if not resp2.status_code == 201:
                 misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp2.status_code, url2))
         else:
             misc.ERROR("putFileToHdfs() chunk mode not yet implemented ")
+
+    def putFileToHdfs(self, localPath, hdfsPath, fileSize=None):
+        logger.debug("putFileToHdfs(localPath={0}, hdfsPath={1}, fileSize={2})".format(localPath, hdfsPath, fileSize))
+        url = "http://{0}/webhdfs/v1{1}?{2}op=CREATE".format(self.endpoint, hdfsPath, self.auth)
+        logger.debug(url)
+        resp = requests.put(url, allow_redirects=False)
+        if not resp.status_code == 307:
+            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
+        url2 = resp.headers['location']    
+        logger.debug(url2)
+        f = open(localPath, "rb")
+        resp2 = requests.put(url2, data=f, headers={'content-type': 'application/octet-stream'})
+        if not resp2.status_code == 201:
+            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp2.status_code, url2))
            
            
     def setModificationTime(self, hdfsPath, modTime):
@@ -120,6 +134,23 @@ class WebHDFS:
         resp = requests.put(url)
         if not resp.status_code == 200:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
+
+    def getFileFromHdfs(self, localPath, hdfsPath):
+        logger.debug("getFileFromHdfs(localPath={0}, hdfsPath={1})".format(localPath, hdfsPath))
+        if os.path.exists(localPath):
+            misc.ERROR("Local file {1} already exists. Will not overwrite it!".format(localPath))
+        f = open(localPath, "wb")
+        url = "http://{0}/webhdfs/v1{1}?{2}op=OPEN".format(self.endpoint, hdfsPath, self.auth)
+        logger.debug(url)
+        resp = requests.get(url, allow_redirects=True, stream=True)
+        if not resp.status_code == 200:
+            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
+        for chunk in resp.iter_content(chunk_size=None, decode_unicode=False):
+            f.write(chunk)
+        f.close()
+        
+        
+        
         
         
                 
