@@ -10,11 +10,15 @@ handlers:
     stream: ext://sys.stdout
 loggers:
   hdfsmirror.main:
+    level: INFO
+    handlers: [console]
+    propagate: no
+  hdfsmirror.thread:
     level: DEBUG
     handlers: [console]
     propagate: no
   hdfsmirror.WebHDFS:
-    level: DEBUG
+    level: INFO
     handlers: [console]
     propagate: no
 root:

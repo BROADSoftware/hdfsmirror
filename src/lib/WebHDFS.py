@@ -87,34 +87,10 @@ class WebHDFS:
         else:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
         return dirContent
-        
-                
-    CHUNK_SIZE = 1024 * 1024
-                     
-    def putFileToHdfs2(self, localPath, hdfsPath, fileSize=None):
-        logger.debug("putFileToHdfs(localPath={0}, hdfsPath={1}, fileSize={2})".format(localPath, hdfsPath, fileSize))
-        if(fileSize == None):   # Compute size if not provided
-            stat = os.stat(localPath)
-            fileSize = stat.st_size
-            logger.debug("Lookup file size for '{0}': {1}".format(localPath, fileSize))
-        url = "http://{0}/webhdfs/v1{1}?{2}op=CREATE".format(self.endpoint, hdfsPath, self.auth)
-        logger.debug(url)
-        resp = requests.put(url, allow_redirects=False)
-        if not resp.status_code == 307:
-            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
-        url2 = resp.headers['location']    
-        logger.debug(url2)
-        if fileSize < WebHDFS.CHUNK_SIZE:
-            f = open(localPath, "rb")
-            fileData = f.read(WebHDFS.CHUNK_SIZE)
-            resp2 = requests.put(url2, data=fileData, headers={'content-type': 'application/octet-stream'})
-            if not resp2.status_code == 201:
-                misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp2.status_code, url2))
-        else:
-            misc.ERROR("putFileToHdfs() chunk mode not yet implemented ")
+   
 
-    def putFileToHdfs(self, localPath, hdfsPath, fileSize=None):
-        logger.debug("putFileToHdfs(localPath={0}, hdfsPath={1}, fileSize={2})".format(localPath, hdfsPath, fileSize))
+    def putFileToHdfs(self, localPath, hdfsPath):
+        logger.debug("putFileToHdfs(localPath={0}, hdfsPath={1})".format(localPath, hdfsPath))
         url = "http://{0}/webhdfs/v1{1}?{2}op=CREATE".format(self.endpoint, hdfsPath, self.auth)
         logger.debug(url)
         resp = requests.put(url, allow_redirects=False)

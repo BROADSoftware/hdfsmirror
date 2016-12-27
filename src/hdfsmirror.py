@@ -24,9 +24,13 @@ import lib.misc as misc
 import lib.WebHDFS as WebHDFS
 import yaml
 import logging.config
+from threading import Thread
+import Queue    
+import time
 
 
 logger = logging.getLogger("hdfsmirror.main")
+tlogger = logging.getLogger("hdfsmirror.thread")
 
 
 
@@ -89,7 +93,46 @@ def walkInHdfs(webHdfs, current, fileMap, noAccess, prefLen):
         noAccess.append(current)
     else:
         raise Exception("Invalid DirContent status: {0} for path:'{1}'".format(dirContent.status, current)) 
+
+
+class StatsThread(Thread):
+    def __init__(self, queue):
+        Thread.__init__(self)
+        self.queue = queue
+        self.allFiles = queue.qsize()
     
+    def run(self):
+        while True:
+            x = self.queue.qsize()
+            print("hdfsmirror: {0}/{1} files copied".format(self.allFiles - x, self.allFiles))
+            if x == 0:
+                return
+            time.sleep(2)
+
+class PutThread(Thread):
+    def __init__(self, tid, queue, localFiles, hdfsFiles, webHDFS):
+        Thread.__init__(self)
+        self.tid = tid
+        self.queue = queue
+        self.localFiles = localFiles
+        self.hdfsFiles = hdfsFiles
+        self.webHDFS = webHDFS
+        self.fileCount = 0;
+    
+    def run(self):
+        tlogger.debug("Thread#{0} started".format(self.tid))
+        while True:
+            try:
+                f = self.queue.get_nowait()
+            except Queue.Empty:
+                tlogger.debug("Thread#{0} ended. {1} files handled".format(self.tid, self.fileCount))
+                return
+            localPath = os.path.join(self.localFiles['rroot'], f)
+            hdfsPath = os.path.join(self.hdfsFiles['rroot'], f)
+            self.webHDFS.putFileToHdfs(localPath, hdfsPath)
+            modTime = self.localFiles['files'][f]['modificationTime']
+            self.webHDFS.setModificationTime(hdfsPath, modTime)
+            self.fileCount += 1
 
 
 def main():
@@ -103,6 +146,7 @@ def main():
     parser.add_argument('--put', action='store_true')
     parser.add_argument('--get', action='store_true')
     parser.add_argument('--report', action='store_true')
+    parser.add_argument('--nbrThreads', required=False)
     parser.add_argument('--yamlLoggingConf', help="Logging configuration as a yaml file")
 
     param = parser.parse_args()
@@ -113,6 +157,11 @@ def main():
         loggingConfFile = param.yamlLoggingConf
         if not os.path.isfile(loggingConfFile):
             misc.ERROR("'{0}' is not a readable file!".format(loggingConfFile))    
+
+    if param.nbrThreads != None:
+        nbrThreads = int(param.nbrThreads)
+    else:
+        nbrThreads = 1
 
     logging.config.dictConfig(yaml.load(open(loggingConfFile)))
     
@@ -177,14 +226,22 @@ def main():
         print("Time diff:\n" + misc.pprint2s(timeDiff))
         print("No diff:\n" + misc.pprint2s(noDiff))
 
-    if param.put:
+    if param.put and len(inLocalOnly) > 0:
+        queue = Queue.Queue()
         for f in inLocalOnly:
-            fileSize = localFiles['files'][f]['size']
-            localPath = os.path.join(localFiles['rroot'], f)
-            hdfsPath = os.path.join(hdfsFiles['rroot'], f)
-            webHDFS.putFileToHdfs(localPath, hdfsPath, fileSize)
-            modTime = localFiles['files'][f]['modificationTime']
-            webHDFS.setModificationTime(hdfsPath, modTime)
+            queue.put(f)
+        myThreads = []
+        st = StatsThread(queue)
+        myThreads.append(st)
+        st.start()
+        for i in range(0,nbrThreads):
+            pt = PutThread(i, queue, localFiles, hdfsFiles, webHDFS)
+            myThreads.append(pt)
+            pt.start()
+        for t in myThreads:
+            t.join()
+        if not queue.empty():
+            misc.ERROR("File Queue not empty!!")
     elif param.get:
         for f in inHdfsOnly:
             localPath = os.path.join(localFiles['rroot'], f)
