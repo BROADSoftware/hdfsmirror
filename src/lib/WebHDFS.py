@@ -18,7 +18,9 @@ import os
 from xml.dom import minidom
 import misc
 import requests
+import logging
 
+logger = logging.getLogger("hdfsmirror.WebHDFS")
 
 
 class WebHDFS:
@@ -41,57 +43,84 @@ class WebHDFS:
         except Exception as e:
             return (False, "{0}  =>  Response code: {1}".format(url, e.strerror))
                 
-    class FileStatus:
-        owner = None
-        group  = None
-        type = None
-        permission = None
-        def __str__(self):
-            return "FileStatus => owner: '{0}', group: '{1}',  type:'{2}', permission:'{3}'".format(self.owner, self.group, self.type, self.permission)
 
-    def getFileStatus(self, path):
+    def getPathType(self, path):
         url = "http://{0}/webhdfs/v1{1}?{2}op=GETFILESTATUS".format(self.endpoint, path, self.auth)
+        logger.debug(url)
         resp = requests.get(url)
         if resp.status_code == 200:
-            #print content
             result = resp.json()
-            fileStatus = WebHDFS.FileStatus()
-            fileStatus.owner = result['FileStatus']['owner']
-            fileStatus.group = result['FileStatus']['group']
-            fileStatus.permission = result['FileStatus']['permission']
-            fileStatus.type = result['FileStatus']['type']
-            return fileStatus
+            return result['FileStatus']['type']
         elif resp.status_code == 404:
-            return None
+            return "NOT_FOUND"
         elif resp.status_code == 403:
-            return None
+            return "NO_ACCESS"
         else:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
+            
                             
-    def listDirContent(self, path):
+    def getDirContent(self, path):
         url = "http://{0}/webhdfs/v1{1}?{2}op=LISTSTATUS".format(self.endpoint, path, self.auth)
-        print(url)
+        logger.debug(url)
         resp = requests.get(url)
+        dirContent = {}
+        dirContent['status'] = "OK"
+        dirContent['files'] = []
+        dirContent['directories'] = []
         if resp.status_code == 200:
-            #print content
             result = resp.json()
-            #misc.pprint(result)
-            files = []
-            directories = []
             for f in result['FileStatuses']['FileStatus']:
                 if f['type'] == 'FILE':
-                    files.append(f['pathSuffix'])
+                    fi = {}
+                    fi['name'] = f['pathSuffix']
+                    fi['size'] = f['length']
+                    fi['modificationTime'] = f['modificationTime']/1000
+                    dirContent['files'].append(fi)
                 elif f['type'] == 'DIRECTORY':
-                    directories.append(f['pathSuffix'])
+                    dirContent['directories'].append(f['pathSuffix'])
                 else:
                     misc.ERROR("Unknown directory entry type: {0}".format(f['type']))
-            return(directories, files)
         elif resp.status_code == 404:
-            return None
+            dirContent['status'] = "NOT_FOUND"
         elif resp.status_code == 403:
-            return None
+            dirContent['status'] = "NO_ACCESS"
         else:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
+        return dirContent
+        
+                
+    CHUNK_SIZE = 1024 * 1024
+                     
+    def putFileToHdfs(self, localPath, hdfsPath, fileSize=None):
+        logger.debug("putFileToHdfs(localPath={0}, hdfsPath={1}, fileSize={2})".format(localPath, hdfsPath, fileSize))
+        if(fileSize == None):   # Compute size if not provided
+            stat = os.stat(localPath)
+            fileSize = stat.st_size
+            logger.debug("Lookup file size for '{0}': {1}".format(localPath, fileSize))
+        url = "http://{0}/webhdfs/v1{1}?{2}op=CREATE".format(self.endpoint, hdfsPath, self.auth)
+        logger.debug(url)
+        resp = requests.put(url, allow_redirects=False)
+        if not resp.status_code == 307:
+            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
+        url2 = resp.headers['location']    
+        logger.debug(url2)
+        if fileSize < WebHDFS.CHUNK_SIZE:
+            f = open(localPath, "r")
+            fileData = f.read(WebHDFS.CHUNK_SIZE)
+            resp2 = requests.put(url2, data=fileData, headers={'content-type': 'application/octet-stream'})
+            if not resp2.status_code == 201:
+                misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp2.status_code, url2))
+        else:
+            misc.ERROR("putFileToHdfs() chunk mode not yet implemented ")
+           
+           
+    def setModificationTime(self, hdfsPath, modTime):
+        url = "http://{0}/webhdfs/v1{1}?{2}op=SETTIMES&modificationtime={3}".format(self.endpoint, hdfsPath, self.auth, long(modTime)*1000)
+        logger.debug(url)
+        resp = requests.put(url)
+        if not resp.status_code == 200:
+            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
+        
         
                 
 def lookup(webHdfsEndpoint=None, hadoopConfDir=None, auth=None):          

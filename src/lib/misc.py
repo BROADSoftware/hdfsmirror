@@ -15,13 +15,23 @@
 
 
 import pprint
+import StringIO
 
 
 prettyPrinter = pprint.PrettyPrinter(indent=2)
 
-def pprint(obj):
+def ppprint(obj):
     prettyPrinter.pprint(obj)
-                
+
+
+def pprint2s(obj):
+    output = StringIO.StringIO()
+    pp = pprint.PrettyPrinter(indent=2, stream=output)
+    pp.pprint(obj)
+    s = output.getvalue()
+    output.close
+    return s
+                    
 
 def ERROR(err, *args):
     if type(err) is str:
