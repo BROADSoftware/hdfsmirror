@@ -77,16 +77,16 @@ Here is a short explanation of the options:
 
 * `nbrThreads:` Allow mutithreading on --put. Value such as 10 or 20 can dramatically improve performance. Default to 1.
 
-* `yamlLoggingConf:` Allow to specify an alternate logging configuration file. Default is to use the logging.yml file beside hdfsmirror.py
+* `yamlLoggingConf:` Allow to specify an alternate logging configuration file. Default is to use the logging.yml file located in the same folder than hdfsmirror.py
 
 
 ## Namenode lookup
 
-hdfsmirror perform all its operation through WebHDFS REST API. So it need to know the url of the active namenode. It will try to lookup such information by parsing the file hdfs-site.xml in the folder /etc/hadoop/conf. 
+hdfsmirror perform all its operation through WebHDFS REST API. So it need to know the url of the active namenode. It will try to lookup such information by parsing the file `hdfs-site.xml` in the folder `/etc/hadoop/conf`. 
 
-You can set an alternate configuration folder by using the `--hadoopConDir` option. Or you can directly set this url by using the `--webHdfsEndpoint` option (ie `--webHdfsEndpoint amenode.mycluster.com:`
+You can set an alternate configuration folder by using the `--hadoopConfDir` option. Or you can directly set this url by using the `--webHdfsEndpoint` option (i.e. `--webHdfsEndpoint amenode.mycluster.com:50070`).
 
-Using this last method will allow you to use hdfsmirror from outside your cluster, without local HDFS client configuration. But, keep in mind the WebHDFS API need to be able to reach directly not only the namenode, but also all datanodes of the target cluster.
+Using this last method will allow you to use hdfsmirror.py from outside your cluster, without local HDFS client configuration. But, keep in mind the WebHDFS API need to be able to reach directly not only the namenode, but also all datanodes of the target cluster.
 
 
 ## License
