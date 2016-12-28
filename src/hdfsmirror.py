@@ -146,6 +146,7 @@ def main():
     parser.add_argument('--put', action='store_true')
     parser.add_argument('--get', action='store_true')
     parser.add_argument('--report', action='store_true')
+    parser.add_argument('--reportFiles', action='store_true')
     parser.add_argument('--nbrThreads', required=False)
     parser.add_argument('--yamlLoggingConf', help="Logging configuration as a yaml file")
 
@@ -164,6 +165,9 @@ def main():
         nbrThreads = 1
 
     logging.config.dictConfig(yaml.load(open(loggingConfFile)))
+
+    if param.reportFiles:
+        param.report = True
     
     if param.put and param.get:
         misc.ERROR("Only one of --put or --get must be set")
@@ -220,12 +224,27 @@ def main():
             inHdfsOnly.append(f)
             
     if param.report:
-        print("On local only (Will be pushed if --put is set):\n" + misc.pprint2s(inLocalOnly))
-        print("On HDFS only (Will be pulled if --get is set):\n" + misc.pprint2s(inHdfsOnly))
-        print("Size diff:\n" + misc.pprint2s(sizeDiff))
-        print("Time diff:\n" + misc.pprint2s(timeDiff))
-        print("No diff:\n" + misc.pprint2s(noDiff))
-
+        print("{0} files on local side only (Will be pushed if --put is set)".format(len(inLocalOnly)))
+        if param.reportFiles:
+            for f in inLocalOnly:
+                print "\t" + f
+        print("{0} files on HDFS side only (Will be pulled if --get is set)".format(len(inHdfsOnly)))
+        if param.reportFiles:
+            for f in inHdfsOnly:
+                print "\t" + f
+        print("{0} files which differs on size".format(len(sizeDiff)))
+        if param.reportFiles:
+            for f in sizeDiff:
+                print "\t" + f
+        print("{0} files which differs on modification time".format(len(timeDiff)))
+        if param.reportFiles:
+            for f in timeDiff:
+                print "\t" + f
+        print("{0} files identical on both sides".format(len(noDiff)))
+        if param.reportFiles:
+            for f in noDiff:
+                print "\t" + f
+        
     if param.put and len(inLocalOnly) > 0:
         queue = Queue.Queue()
         for f in inLocalOnly:
