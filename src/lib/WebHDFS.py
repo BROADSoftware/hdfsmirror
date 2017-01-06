@@ -25,11 +25,9 @@ logger = logging.getLogger("hdfsmirror.WebHDFS")
 
 class WebHDFS:
     
-    def __init__(self, endpoint, auth):
-        if auth != "" and not auth.endswith("&"):
-            auth = auth + "&"
+    def __init__(self, endpoint, hdfsUser):
         self.endpoint = endpoint
-        self.auth = auth
+        self.auth = "user.name=" + hdfsUser + "&"
         
          
     def test(self):
@@ -131,9 +129,9 @@ class WebHDFS:
         return dirContent
    
 
-    def putFileToHdfs(self, localPath, hdfsPath):
+    def putFileToHdfs(self, localPath, hdfsPath, overwrite):
         logger.debug("putFileToHdfs(localPath={0}, hdfsPath={1})".format(localPath, hdfsPath))
-        url = "http://{0}/webhdfs/v1{1}?{2}op=CREATE".format(self.endpoint, hdfsPath, self.auth)
+        url = "http://{0}/webhdfs/v1{1}?{2}op=CREATE&overwrite={3}".format(self.endpoint, hdfsPath, self.auth, "true" if overwrite else "false")
         logger.debug(url)
         resp = requests.put(url, allow_redirects=False)
         if not resp.status_code == 307:
@@ -159,19 +157,13 @@ class WebHDFS:
             f.write(chunk)
         f.close()
 
-        
-        
-        
-        
                 
-def lookup(webHdfsEndpoint=None, hadoopConfDir=None, auth=None):          
-    hadoopConfDir = hadoopConfDir if hadoopConfDir != None else "/etc/hadoop/conf"
-    auth = auth if auth != None else "user.name=hdfs"
-    if webHdfsEndpoint == None:
-        if not os.path.isdir(hadoopConfDir):
-            misc.ERROR("{0} must be an existing folder, or --hadoopConfDir  or --webHdfsEndpoint provided as parameter.".format(hadoopConfDir))
+def lookup(p):   
+    if p.webhdfsEndpoint == None:
+        if not os.path.isdir(p.hadoopConfDir):
+            misc.ERROR("{0} must be an existing folder, or --hadoopConfDir  or --webhdfsEndpoint provided as parameter.".format(p.hadoopConfDir))
         candidates = []
-        hspath = os.path.join(hadoopConfDir, "hdfs-site.xml")
+        hspath = os.path.join(p.hadoopConfDir, "hdfs-site.xml")
         NN_HTTP_TOKEN1 = "dfs.namenode.http-address"
         NN_HTTP_TOKEN2 = "dfs.http.address"  # Deprecated
         if os.path.isfile(hspath):
@@ -185,16 +177,34 @@ def lookup(webHdfsEndpoint=None, hadoopConfDir=None, auth=None):
                 misc.ERROR("Unable to find {0}* or {1}* in {2}. Provide explicit 'webhdfs_endpoint'", NN_HTTP_TOKEN1, NN_HTTP_TOKEN2, hspath)
             errors = []
             for endpoint in candidates:
-                webHDFS= WebHDFS(endpoint, auth)
+                webHDFS= WebHDFS(endpoint, p.hdfsUser)
                 (x, err) = webHDFS.test()
                 if x:
-                    webHdfsEndpoint = webHDFS.endpoint
+                    p.webhdfsEndpoint = webHDFS.endpoint
                     return webHDFS
                 else:
-                    errors.append("\n" + err)
-            misc.ERROR("Unable to find a valid 'webhdfs_endpoint' in hdfs-site.xml:" + err)
+                    errors.append(err)
+            misc.ERROR("Unable to find a valid 'webhdfs_endpoint' in hdfs-site.xml:" + str(errors))
         else:
             misc.ERROR("Unable to find file {0}. Provide 'webhdfs_endpoint' or 'hadoop_conf_dir' parameter", hspath)
     else:
-        return WebHDFS(webHdfsEndpoint, auth)
+        candidates = p.webhdfsEndpoint.split(",")
+        errors = []
+        for endpoint in candidates:
+            webHDFS= WebHDFS(endpoint, p.hdfsUser)
+            (x, err) = webHDFS.test()
+            if x:
+                p.webhdfsEndpoint = webHDFS.endpoint
+                return webHDFS
+            else:
+                errors.append(err)
+        misc.ERROR("Unable to find a valid 'webhdfs_endpoint' in: " + p.webhdfsEndpoint + " (" + str(errors) + ")")
+    
+    
+    
+    
+    
+    
+    
+    
     

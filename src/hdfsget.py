@@ -139,17 +139,21 @@ def main():
     parser.add_argument('--nbrThreads', required=False)
     parser.add_argument('--yamlLoggingConf', help="Logging configuration as a yaml file")
 
+    parser.add_argument('--force',  action='store_true')
     parser.add_argument('--backup', action='store_true')
+
+    parser.add_argument('--owner', required=False, help="owner for all files.")
+    parser.add_argument('--group', required=False, help="group for all files.")
+    parser.add_argument('--mode', required=False, help="mode for all files.")
+
+    parser.add_argument('--defaultOwner', required=False, help="owner for newly create files.")
     parser.add_argument('--defaultGroup', required=False, help="group for newly create files.")
     parser.add_argument('--defaultMode', required=False, help="mode for newly create files.")
-    parser.add_argument('--defaultOwner', required=False, help="owner for newly create files.")
+
     parser.add_argument('--directoryMode', required=False)
-    parser.add_argument('--force',  action='store_true')
-    parser.add_argument('--group', required=False, help="group for all files.")
-    parser.add_argument('--hadoopConfDir', required=False)
-    parser.add_argument('--hdfsUser', required=False)
-    parser.add_argument('--mode', required=False, help="mode for all files.")
-    parser.add_argument('--owner', required=False, help="owner for all files.")
+    
+    parser.add_argument('--hdfsUser', required=False, default="hdfs")
+    parser.add_argument('--hadoopConfDir', required=False, default="/etc/hadoop/conf")
     parser.add_argument('--webhdfsEndpoint', required=False)
 
     params = parser.parse_args()
@@ -194,7 +198,7 @@ def main():
         p.report = True
     
        
-    webHDFS = WebHDFS.lookup(p.webhdfsEndpoint, p.hadoopConfDir, None if p.hdfsUser == None else "user.name=" + p.hdfsUser)
+    webHDFS = WebHDFS.lookup(p)
 
     
     ft = webHDFS.getPathType(p.src)
@@ -255,6 +259,8 @@ def main():
             filesToCreate.append(fileName)
 
     if(p.report):
+        print("{0} files in {1} directories present in HDFS source".format(len(srcTree['files']), len(srcTree['directories'])))
+        print("{0} files in {1} directories already present in local target".format(len(destTree['files']), len(destTree['directories'])))
         print("{0} directories to be created on local target".format(len(directoriesToCreate)))
         for f in directoriesToCreate:
             print "\t" + f

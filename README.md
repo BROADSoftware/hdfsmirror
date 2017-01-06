@@ -1,20 +1,22 @@
-# hdfsmirror.py
+# hdfsmirror
 
-hdfsmirror is a small project aimed to copy file tree from local to HDFS and reverse.
+hdfsmirror is a small project aimed to copy files tree from local to HDFS and reverse. 
+
+It is made of two python script: hdfsput.py and hdfsget.py, who shared the same logic and behavior
 
 It behave by comparing source and target tree and perform the following.
 
-* Files existing on the source, but not on the target will be copied. Modification time of the target is adjusted to the source value
+* Files existing on the source, but not on the target will be copied. Modification time of the target is adjusted to the source value. owner, groups and permission will be adjusted if such parameters are provided.
 
 * Files existing on the target but not on the source will not be affected.
 
-* Files existing on the target and on the source will not be affected. If they differs by size or by modification time, this will be notified in the report.
+* Files existing on the target and on the source will be compared by size and modification time. If they differ by one of theses values, target will be replaced if the `--force` switch is set. A backup will be performed before if the `--backup` switch is set. 
 
 A key point is hdfsmirror can works using multi-threading, thus dramatically improve performances on local to HDFS transfer. 
 
 ## Installation
 
-Currently, hdfsmirror.py is not packaged. So the only way to install it is to clone this project.
+Currently, hdfsmirror is not packaged. So the only way to install it is to clone this project.
 
 Then, you must install some dependencies:
 
@@ -26,59 +28,95 @@ Or, if you are on RHEL/Centos 7.X, you can install required packages:
 
     yum install -y python-requests PyYAML
 
+And, last steps, make files executable:
+
+	chmod +x src/hdfsput.py
+	chmod +x src/hdfsget.py
+
 ## Usage
 
-Simply launch hdfsmirror.py
+Simply launch hdfsput.py, or hdfsget.py
 
-	src/hdfsmirror.py --help
-	usage: hdfsmirror.py [-h] --local LOCAL --hdfs HDFS
-	                     [--webHdfsEndpoint WEBHDFSENDPOINT]
-	                     [--hadoopConfDir HADOOPCONFDIR] [--hdfsUser HDFSUSER]
-	                     [--put] [--get] [--report] [--reportFiles]
-	                     [--nbrThreads NBRTHREADS]
-	                     [--yamlLoggingConf YAMLLOGGINGCONF]
+	src/hdfsput.py --help
+	
+	usage: hdfsput.py [-h] --src SRC --dest DEST [--checkMode] [--report]
+	                  [--reportFiles] [--nbrThreads NBRTHREADS]
+	                  [--yamlLoggingConf YAMLLOGGINGCONF] [--force] [--backup]
+	                  [--owner OWNER] [--group GROUP] [--mode MODE]
+	                  [--defaultOwner DEFAULTOWNER] [--defaultGroup DEFAULTGROUP]
+	                  [--defaultMode DEFAULTMODE] [--directoryMode DIRECTORYMODE]
+	                  [--hadoopConfDir HADOOPCONFDIR] [--hdfsUser HDFSUSER]
+	                  [--webhdfsEndpoint WEBHDFSENDPOINT]
 	
 	optional arguments:
 	  -h, --help            show this help message and exit
-	  --local LOCAL
-	  --hdfs HDFS
-	  --webHdfsEndpoint WEBHDFSENDPOINT
-	  --hadoopConfDir HADOOPCONFDIR
-	  --hdfsUser HDFSUSER
-	  --put
-	  --get
+	  --src SRC
+	  --dest DEST
+	  --checkMode
 	  --report
 	  --reportFiles
 	  --nbrThreads NBRTHREADS
 	  --yamlLoggingConf YAMLLOGGINGCONF
 	                        Logging configuration as a yaml file
-
-
-
+	  --force
+	  --backup
+	  --owner OWNER         owner for all files.
+	  --group GROUP         group for all files.
+	  --mode MODE           mode for all files.
+	  --defaultOwner DEFAULTOWNER
+	                        owner for newly create files.
+	  --defaultGroup DEFAULTGROUP
+	                        group for newly create files.
+	  --defaultMode DEFAULTMODE
+	                        mode for newly create files.
+	  --directoryMode DIRECTORYMODE
+	  --hdfsUser HDFSUSER
+	  --hadoopConfDir HADOOPCONFDIR
+	  --webhdfsEndpoint WEBHDFSENDPOINT	
+	  
 Here is a short explanation of the options:
 
-* `local:` The local (Linux file system) path of the data you want to copy from/to. This must be an existing directory.
+* `src:` Mandatory. The directory you want to copy from (local for hdfsput, HDFS for hdfsget). This must be an existing directory. See note on ending '/' below
 
-* `hdfs:` The HDFS path of the data you want to copy from/to. This must be an existing directory.
+* `dest:` Mandatory. The directory you want to copy into (HDFS for hdfsput, local for hdfsget). This must be an existing directory.
 
-* `webHdfsEndpoint:` Refer to 'Namenode lookup' below.
+* `checkMode:` Boolean. Default: No. If set, the command will be perform any action. Just print report
 
-* `hadoopConfDir:` Refer to 'Namenode lookup' below.
+* `report:` Boolean. Default: No. Produce a synthetic report.
 
-* `hdfsUser:` This user on behalf all HDFS operation will be performed. Of course must be able to read an write on concerned folder.
-
-* `put:` Trigger the effective transfer from local to HDFS.
-
-* `get:` Trigger the effective transfer from HDFS to local.
-
-* `report:` Produce a synthetical report. If used without --put or --get, no operation will be performed.
-
-* `reportFiles:` Produce a detailed report. If used without --put or --get, no operation will be performed.
+* `reportFiles:` Boolean. Default: No. Produce a detailed report, listing all impacted files.
 
 * `nbrThreads:` Allow mutithreading on --put. Value such as 10 or 20 can dramatically improve performance. Default to 1.
 
-* `yamlLoggingConf:` Allow to specify an alternate logging configuration file. Default is to use the logging.yml file located in the same folder than hdfsmirror.py
+* `yamlLoggingConf:` Allow to specify an alternate logging configuration file. Default is to use the logging.yml file located in the same folder than hdfs[put/get].py
 
+* `force:` Boolean. Default: No. Allow overwrite of target file if they differ from source.
+
+* `backup:` Boolean. Default: No. In case of overwrite, perform a backup of original file.
+
+* `owner:` If set, all files on target will belong to this user.
+
+* `group:` If set, all files on target will belong to this group.
+
+* `mode:` If set, all files on target will have this permission. Must be a string representing an octal value (i.e: "0644")
+
+* `defaultOwner:` Same as owner, but apply only on newly created files. Existing target files will not be impacted.
+
+* `defaultGroup:` Same as group, but apply only on newly created files. Existing target files will not be impacted.
+
+* `defaultMode:` Same as mode, but apply only on newly created files. Existing target files will not be impacted.
+
+* `directoryMode:` permission for newly create directories. (owner and group will the same as files). Existing directories will not be impacted.
+
+* `hdfsUser:` Default: "hdfs". This user on behalf all HDFS operation will be performed. Of course must be able to read an write on concerned folder.
+
+* `hadoopConfDir:` Default: "/etc/hadoop/conf" Refer to 'Namenode lookup' below.
+
+* `webHdfsEndpoint:` Refer to 'Namenode lookup' below.
+
+## src ending with "/"
+
+If `src` path ends with "/", only inside contents of that directory are copied to destination. Otherwise, if it does not end with "/", the directory itself with all contents is copied. This behavior is similar to Rsync.
 
 ## Namenode lookup
 

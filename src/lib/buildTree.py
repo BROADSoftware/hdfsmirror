@@ -145,14 +145,14 @@ def buildHdfsTree(webHdfs, rroot):
 
 def walkInHdfs(webHdfs, current, dirMap, fileMap, noAccess, prefLen):
     dirContent = webHdfs.getDirContent(current)
-    print misc.pprint2s(dirContent)
+    #print misc.pprint2s(dirContent)
     if dirContent['status'] == "OK":
         for f in dirContent['files']:
             path = os.path.join(current, f['name'])[prefLen:]
             del f['name']
             fileMap[path] = f
         for d in dirContent['directories']:
-            print misc.pprint2s(d)
+            #print misc.pprint2s(d)
             path = os.path.join(current, d['name'])
             del d['name']
             dirMap[path[prefLen:]] = d
