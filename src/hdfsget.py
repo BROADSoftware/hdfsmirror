@@ -18,7 +18,6 @@
 
 
 import os
-import argparse
 import logging.config
 import lib.misc as misc
 import yaml
@@ -28,6 +27,7 @@ import sys
 import Queue    
 from threading import Thread
 import time
+import lib.common as common
 
 
 logger = logging.getLogger("hdfsget.main")
@@ -43,7 +43,7 @@ def applyAttrOnNewFile(path, p):
     if group != None:
         os.chown(path, -1, misc.getGidFromName(group))
     if mode != None:
-        os.chmod(path, p.mode)
+        os.chmod(path, int(p.mode, 8))
 
 
 def applyAttrOnNewDirectory(path, p):
@@ -61,7 +61,7 @@ def adjustAttrOnExistingFile(filePath, fileStatus, p):
     if p.group != None and p.group != fileStatus['group']:
         os.chown(filePath, -1, misc.getGidFromName(p.group))
     if(p.mode != None and fileStatus['mode'] != p.mode):
-        os.chmod(filePath, p.mode)
+        os.chmod(filePath, int(p.mode, 8))
 
 
 def checkAttrOnExistingFile(fileStatus, p):
@@ -129,70 +129,12 @@ class Parameters:
 
 def main():
     mydir =  os.path.dirname(os.path.realpath(__file__)) 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--src', required=True)
-    parser.add_argument('--dest', required=True)
-    
-    parser.add_argument('--checkMode', action='store_true')
-    parser.add_argument('--report', action='store_true')
-    parser.add_argument('--reportFiles', action='store_true')
-    parser.add_argument('--nbrThreads', required=False)
-    parser.add_argument('--yamlLoggingConf', help="Logging configuration as a yaml file")
+    p = common.parseArg(mydir)
 
-    parser.add_argument('--force',  action='store_true')
-    parser.add_argument('--backup', action='store_true')
-
-    parser.add_argument('--owner', required=False, help="owner for all files.")
-    parser.add_argument('--group', required=False, help="group for all files.")
-    parser.add_argument('--mode', required=False, help="mode for all files.")
-
-    parser.add_argument('--defaultOwner', required=False, help="owner for newly create files.")
-    parser.add_argument('--defaultGroup', required=False, help="group for newly create files.")
-    parser.add_argument('--defaultMode', required=False, help="mode for newly create files.")
-
-    parser.add_argument('--directoryMode', required=False)
-    
-    parser.add_argument('--hdfsUser', required=False, default="hdfs")
-    parser.add_argument('--hadoopConfDir', required=False, default="/etc/hadoop/conf")
-    parser.add_argument('--webhdfsEndpoint', required=False)
-
-    params = parser.parse_args()
-    
-    p = Parameters()
-    p.src = params.src
-    p.dest = params.dest
-    p.checkMode = params.checkMode
-    p.report = params.report
-    p.reportFiles = params.reportFiles
-    p.nbrThreads = params.nbrThreads
-    p.yamlLoggingConf = params.yamlLoggingConf
-    
-    p.backup = params.backup
-    p.defaultGroup = params.defaultGroup
-    p.defaultMode = params.defaultMode
-    p.defaultOwner = params.defaultOwner
-    p.directoryMode = params.directoryMode
-    p.force = params.force
-    p.group = params.group
-    p.hadoopConfDir = params.hadoopConfDir
-    p.hdfsUser = params.hdfsUser
-    p.mode = params.mode
-    p.owner = params.owner
-    p.webhdfsEndpoint = params.webhdfsEndpoint
-    
-    
-    loggingConfFile =  os.path.join(mydir, "./logging.yml")
-    if  p.yamlLoggingConf != None:
-        loggingConfFile = p.yamlLoggingConf
-        if not os.path.isfile(loggingConfFile):
-            misc.ERROR("'{0}' is not a readable file!".format(loggingConfFile))    
-
-    if p.nbrThreads != None:
-        nbrThreads = int(p.nbrThreads)
-    else:
-        nbrThreads = 1
-
-    logging.config.dictConfig(yaml.load(open(loggingConfFile)))
+    if not p.src.startswith("/"):
+        misc.ERROR("src '{0}' is not absolute. Absolute path is required for HDFS!", p.path)
+        
+    logging.config.dictConfig(yaml.load(open(p.loggingConfFile)))
 
     if p.reportFiles:
         p.report = True
@@ -302,7 +244,7 @@ def main():
             st = StatsThread(queue)
             myThreads.append(st)
             st.start()
-            for i in range(0,nbrThreads):
+            for i in range(0, p.nbrThreads):
                 pt = PutThread(i, queue, srcTree, destTree, webHDFS, p)
                 myThreads.append(pt)
                 pt.start()

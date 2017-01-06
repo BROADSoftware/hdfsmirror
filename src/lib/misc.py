@@ -86,7 +86,10 @@ def getUidFromName(name):
     if name in uidFromName:
         return uidFromName[name]
     else:
-        n = pwd.getpwnam(name).pw_uid
+        try:
+            n = pwd.getpwnam(name).pw_uid
+        except:
+            ERROR("User '{0}' is not existing", name)
         uidFromName[name] = n
         return n
     
@@ -97,7 +100,10 @@ def getGidFromName(name):
     if name in gidFromName:
         return gidFromName[name]
     else:
-        n = grp.getgrnam(name).gr_gid
+        try:
+            n = grp.getgrnam(name).gr_gid
+        except:
+            ERROR("Group '{0}' is not existing", name)
         gidFromName[name] = n
         return n
     
