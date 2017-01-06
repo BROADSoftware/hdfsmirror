@@ -57,8 +57,40 @@ class WebHDFS:
             return "NO_ACCESS"
         else:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
-            
-                            
+    
+    def put(self, url):
+        resp = requests.put(url, allow_redirects=False)
+        if resp.status_code != 200:  
+            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'", resp.status_code, url)
+        
+    def createFolder(self, path, permission):
+        if permission != None:
+            url = "http://{0}/webhdfs/v1{1}?{2}op=MKDIRS&permission={3}".format(self.endpoint, path, self.auth, permission)
+        else:
+            url = "http://{0}/webhdfs/v1{1}?{2}op=MKDIRS".format(self.endpoint, path, self.auth)
+        self.put(url)
+
+    def setOwner(self, path, owner):
+        url = "http://{0}/webhdfs/v1{1}?{2}op=SETOWNER&owner={3}".format(self.endpoint, path, self.auth, owner)
+        self.put(url)
+
+    def setGroup(self, path, group):
+        url = "http://{0}/webhdfs/v1{1}?{2}op=SETOWNER&group={3}".format(self.endpoint, path, self.auth, group)
+        self.put(url)
+    
+    def setPermission(self, path, permission):
+        url = "http://{0}/webhdfs/v1{1}?{2}op=SETPERMISSION&permission={3}".format(self.endpoint, path, self.auth, permission)
+        self.put(url)
+           
+    def setModificationTime(self, hdfsPath, modTime):
+        url = "http://{0}/webhdfs/v1{1}?{2}op=SETTIMES&modificationtime={3}".format(self.endpoint, hdfsPath, self.auth, long(modTime)*1000)
+        logger.debug(url)
+        self.put(url)
+           
+    def rename(self, hdfsPath, newName):
+        url = "http://{0}/webhdfs/v1{1}?{2}op=RENAME&destination={3}".format(self.endpoint, hdfsPath, self.auth, newName)
+        self.put(url)
+           
     def getDirContent(self, path):
         url = "http://{0}/webhdfs/v1{1}?{2}op=LISTSTATUS".format(self.endpoint, path, self.auth)
         logger.debug(url)
@@ -69,15 +101,25 @@ class WebHDFS:
         dirContent['directories'] = []
         if resp.status_code == 200:
             result = resp.json()
+            #print misc.pprint2s(result)
             for f in result['FileStatuses']['FileStatus']:
                 if f['type'] == 'FILE':
                     fi = {}
                     fi['name'] = f['pathSuffix']
                     fi['size'] = f['length']
                     fi['modificationTime'] = f['modificationTime']/1000
+                    fi['mode'] = "0" + f['permission']
+                    fi['owner'] = f['owner']
+                    fi['group'] = f['group']
                     dirContent['files'].append(fi)
                 elif f['type'] == 'DIRECTORY':
-                    dirContent['directories'].append(f['pathSuffix'])
+                    di = {}
+                    di['name'] = f['pathSuffix']
+                    #di['modificationTime'] = f['modificationTime']/1000
+                    di['mode'] = "0" + f['permission']
+                    di['owner'] = f['owner']
+                    di['group'] = f['group']
+                    dirContent['directories'].append(di)
                 else:
                     misc.ERROR("Unknown directory entry type: {0}".format(f['type']))
         elif resp.status_code == 404:
@@ -103,14 +145,6 @@ class WebHDFS:
         if not resp2.status_code == 201:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp2.status_code, url2))
            
-           
-    def setModificationTime(self, hdfsPath, modTime):
-        url = "http://{0}/webhdfs/v1{1}?{2}op=SETTIMES&modificationtime={3}".format(self.endpoint, hdfsPath, self.auth, long(modTime)*1000)
-        logger.debug(url)
-        resp = requests.put(url)
-        if not resp.status_code == 200:
-            misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
-
     def getFileFromHdfs(self, localPath, hdfsPath):
         logger.debug("getFileFromHdfs(localPath={0}, hdfsPath={1})".format(localPath, hdfsPath))
         if os.path.exists(localPath):
@@ -124,7 +158,7 @@ class WebHDFS:
         for chunk in resp.iter_content(chunk_size=None, decode_unicode=False):
             f.write(chunk)
         f.close()
-        
+
         
         
         

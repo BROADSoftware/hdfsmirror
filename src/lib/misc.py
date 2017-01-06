@@ -18,6 +18,9 @@ import pprint
 import StringIO
 import errno
 import os
+import pwd
+import grp
+
 
 prettyPrinter = pprint.PrettyPrinter(indent=2)
 
@@ -55,3 +58,47 @@ def ensureFolder(path):
             pass
         
 
+# Just a local cache, to optimize system calls
+userNameFromUid = {}
+def getUserNameFromId(uid):
+    if uid in userNameFromUid:
+        return userNameFromUid[uid]
+    else:
+        n = pwd.getpwuid(uid).pw_name
+        userNameFromUid[uid] = n
+        return n
+    
+    
+# Just a local cache, to optimize system calls
+groupNameFromGid = {}
+def getGroupNameGroupId(gid):
+    if gid in groupNameFromGid:
+        return groupNameFromGid[gid]
+    else:
+        n = grp.getgrgid(gid).gr_name
+        groupNameFromGid[gid] = n
+        return n
+    
+    
+# Just a local cache, to optimize system calls
+uidFromName = {}
+def getUidFromName(name):
+    if name in uidFromName:
+        return uidFromName[name]
+    else:
+        n = pwd.getpwnam(name).pw_uid
+        uidFromName[name] = n
+        return n
+    
+    
+# Just a local cache, to optimize system calls
+gidFromName = {}
+def getGidFromName(name):
+    if name in gidFromName:
+        return gidFromName[name]
+    else:
+        n = grp.getgrnam(name).gr_gid
+        gidFromName[name] = n
+        return n
+    
+    

@@ -9,15 +9,15 @@ handlers:
     formatter: simple
     stream: ext://sys.stdout
 loggers:
-  hdfsmirror.main:
+  hdfsput.main:
+    level: DEBUG
+    handlers: [console]
+    propagate: no
+  hdfsput.thread:
     level: INFO
     handlers: [console]
     propagate: no
-  hdfsmirror.thread:
-    level: INFO
-    handlers: [console]
-    propagate: no
-  hdfsmirror.WebHDFS:
+  hdfsput.WebHDFS:
     level: INFO
     handlers: [console]
     propagate: no
