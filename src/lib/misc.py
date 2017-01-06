@@ -20,6 +20,7 @@ import errno
 import os
 import pwd
 import grp
+import sys
 
 
 prettyPrinter = pprint.PrettyPrinter(indent=2)
@@ -44,7 +45,7 @@ def ERROR(err, *args):
         message = err.__class__.__name__ + ": " + str(err)
     print "* * * * ERROR: " + str(message)
     #raise Exception("xx")
-    exit(1)
+    sys.exit(1)
 
 
 

@@ -80,20 +80,6 @@ def backupHdfsFile(webhdfs, path):
     webhdfs.rename(path, backupdest)
 
 
-class StatsThread(Thread):
-    def __init__(self, queue):
-        Thread.__init__(self)
-        self.queue = queue
-        self.allFiles = queue.qsize()
-    
-    def run(self):
-        while True:
-            x = self.queue.qsize()
-            print("hdfsmirror: {0}/{1} files copied".format(self.allFiles - x, self.allFiles))
-            if x == 0:
-                return
-            time.sleep(2)
-
 class PutThread(Thread):
     def __init__(self, tid, queue, srcTree, destTree, webHDFS, p):
         Thread.__init__(self)
@@ -170,13 +156,14 @@ def main():
     if logger.getEffectiveLevel() <= logging.DEBUG:
         logger.debug("Source (local) files:\n" + misc.pprint2s(srcTree))
         logger.debug("Target (HDFS) files:\n" + misc.pprint2s(destTree))
-    
-    # Create missing folder on target
+
+    # Lookup all folder to create on target
     for dirName in srcTree['directories']:
         if dirName not in destTree['directories']:
             dirPath = os.path.join(destTree['rroot'], dirName)
             directoriesToCreate.append(dirPath)
                
+    directoriesToCreate.sort()
 
     for fileName in srcTree['files']:
         if fileName in destTree['files']:
@@ -227,7 +214,7 @@ def main():
                 for f in filesToReplace:
                     queue.put(f)
             myThreads = []
-            st = StatsThread(queue)
+            st = common.StatsThread(queue, myThreads)
             myThreads.append(st)
             st.start()
             for i in range(0, p.nbrThreads):

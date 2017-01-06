@@ -143,10 +143,10 @@ class WebHDFS:
         if not resp2.status_code == 201:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp2.status_code, url2))
            
-    def getFileFromHdfs(self, localPath, hdfsPath):
+    def getFileFromHdfs(self, hdfsPath, localPath):
         logger.debug("getFileFromHdfs(localPath={0}, hdfsPath={1})".format(localPath, hdfsPath))
         if os.path.exists(localPath):
-            misc.ERROR("Local file {1} already exists. Will not overwrite it!".format(localPath))
+            misc.ERROR("Local file {0} already exists. Will not overwrite it!".format(localPath))
         f = open(localPath, "wb")
         url = "http://{0}/webhdfs/v1{1}?{2}op=OPEN".format(self.endpoint, hdfsPath, self.auth)
         logger.debug(url)

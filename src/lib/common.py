@@ -15,6 +15,8 @@
 import os
 import misc
 import argparse
+from threading import Thread
+import time
 
 
 
@@ -112,4 +114,21 @@ def parseArg(mydir):
         misc.ERROR("There is no reason to define both mode and default_mode")
     
     return p
+
+
+
+class StatsThread(Thread):
+    def __init__(self, queue, myThreads):
+        Thread.__init__(self)
+        self.queue = queue
+        self.myThreads = myThreads
+        self.allFiles = queue.qsize()
+    
+    def run(self):
+        while True:
+            x = self.queue.qsize()
+            print("hdfsmirror: {0}/{1} files copied".format(self.allFiles - x, self.allFiles))
+            if x == 0 or  len(self.myThreads) <= 1: # If 1, this is myself. So, exit. (This is in error case, where all threads died while queue is not empty)
+                return
+            time.sleep(2)
         
