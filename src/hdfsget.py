@@ -103,7 +103,7 @@ class PutThread(Thread):
             destPath = os.path.join(self.destTree['rroot'], f)
             if f in self.destTree['files'] and self.p.backup:
                 backupLocalFile(self.webHDFS, destPath)
-            self.webHDFS.getFileFromHdfs(srcPath, destPath)
+            self.webHDFS.getFileFromHdfs(srcPath, destPath, self.p.force)
             modTime = self.srcTree['files'][f]['modificationTime']
             os.utime(destPath, (time.time(), modTime))
             applyAttrOnNewFile(destPath, self.p)
@@ -210,6 +210,8 @@ def main():
             for f in filesToAdjust:
                 print "\t" + os.path.join(destTree['rroot'], f)
 
+    nbrOperations = len(directoriesToCreate) + len(filesToAdjust) + len(filesToCreate) + len(filesToReplace) 
+
     if not p.checkMode:
         for f in directoriesToCreate:
             if p.directoryMode != None:
@@ -229,17 +231,20 @@ def main():
                 for f in filesToReplace:
                     queue.put(f)
             myThreads = []
-            st = common.StatsThread(queue, myThreads)
-            myThreads.append(st)
-            st.start()
             for i in range(0, p.nbrThreads):
                 pt = PutThread(i, queue, srcTree, destTree, webHDFS, p)
                 myThreads.append(pt)
                 pt.start()
+            st = common.StatsThread(queue, myThreads)
+            myThreads.append(st)
+            st.start()
             for t in myThreads:
                 t.join()
             if not queue.empty():
                 misc.ERROR("File Queue not empty while all threads ending!!")
+
+    print("Operation count: {0}".format(nbrOperations))
+    return 0
 
 
 if __name__ == '__main__':

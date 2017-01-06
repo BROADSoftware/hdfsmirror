@@ -143,9 +143,9 @@ class WebHDFS:
         if not resp2.status_code == 201:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp2.status_code, url2))
            
-    def getFileFromHdfs(self, hdfsPath, localPath):
+    def getFileFromHdfs(self, hdfsPath, localPath, overwrite):
         logger.debug("getFileFromHdfs(localPath={0}, hdfsPath={1})".format(localPath, hdfsPath))
-        if os.path.exists(localPath):
+        if os.path.exists(localPath) and not overwrite:
             misc.ERROR("Local file {0} already exists. Will not overwrite it!".format(localPath))
         f = open(localPath, "wb")
         url = "http://{0}/webhdfs/v1{1}?{2}op=OPEN".format(self.endpoint, hdfsPath, self.auth)
@@ -153,7 +153,7 @@ class WebHDFS:
         resp = requests.get(url, allow_redirects=True, stream=True)
         if not resp.status_code == 200:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
-        for chunk in resp.iter_content(chunk_size=None, decode_unicode=False):
+        for chunk in resp.iter_content(chunk_size=10240, decode_unicode=False):
             f.write(chunk)
         f.close()
 

@@ -17,7 +17,15 @@ loggers:
     level: DEBUG
     handlers: [console]
     propagate: no
-  hdfsput.WebHDFS:
+  hdfsget.main:
+    level: INFO
+    handlers: [console]
+    propagate: no
+  hdfsget.thread:
+    level: DEBUG
+    handlers: [console]
+    propagate: no
+  hdfsmirror.WebHDFS:
     level: INFO
     handlers: [console]
     propagate: no

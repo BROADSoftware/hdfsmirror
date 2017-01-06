@@ -198,6 +198,8 @@ def main():
             for f in filesToAdjust:
                 print "\t" + os.path.join(destTree['rroot'], f)
 
+    nbrOperations = len(directoriesToCreate) + len(filesToAdjust) + len(filesToCreate) + len(filesToReplace) 
+
     if not p.checkMode:
         for f in directoriesToCreate:
             webHDFS.createFolder(f, p.directoryMode)
@@ -214,18 +216,20 @@ def main():
                 for f in filesToReplace:
                     queue.put(f)
             myThreads = []
-            st = common.StatsThread(queue, myThreads)
-            myThreads.append(st)
-            st.start()
             for i in range(0, p.nbrThreads):
                 pt = PutThread(i, queue, srcTree, destTree, webHDFS, p)
                 myThreads.append(pt)
                 pt.start()
+            st = common.StatsThread(queue, myThreads)
+            myThreads.append(st)
+            st.start()
             for t in myThreads:
                 t.join()
             if not queue.empty():
                 misc.ERROR("File Queue not empty while all threads ending!!")
-
+        
+    print("Operation count: {0}".format(nbrOperations))
+    return 0
 
 if __name__ == '__main__':
     sys.exit(main())
