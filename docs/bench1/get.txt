@@ -1,0 +1,251 @@
+[sa@en2 ~]$ time /home/sa/hdfsmirror/src/hdfsget.py --src /user/sa/big --dest /home/sa --nbrThreads 10 --report --force
+22279 files in 30 directories present in HDFS source
+0 files in 0 directories already present in local target
+31 directories to be created on local target
+	/home/sa/big
+	/home/sa/big/centos7updates01
+	/home/sa/big/centos7updates01/.origin
+	/home/sa/big/centos7updates01/Packages
+	/home/sa/big/centos7updates01/cache
+	/home/sa/big/centos7updates01/repodata
+	/home/sa/big/centos7updates02
+	/home/sa/big/centos7updates02/.origin
+	/home/sa/big/centos7updates02/Packages
+	/home/sa/big/centos7updates02/cache
+	/home/sa/big/centos7updates02/repodata
+	/home/sa/big/centos7updates03
+	/home/sa/big/centos7updates03/.origin
+	/home/sa/big/centos7updates03/Packages
+	/home/sa/big/centos7updates03/cache
+	/home/sa/big/centos7updates03/repodata
+	/home/sa/big/centos7updates04
+	/home/sa/big/centos7updates04/.origin
+	/home/sa/big/centos7updates04/Packages
+	/home/sa/big/centos7updates04/cache
+	/home/sa/big/centos7updates04/repodata
+	/home/sa/big/centos7updates05
+	/home/sa/big/centos7updates05/.origin
+	/home/sa/big/centos7updates05/Packages
+	/home/sa/big/centos7updates05/cache
+	/home/sa/big/centos7updates05/repodata
+	/home/sa/big/centos7updates06
+	/home/sa/big/centos7updates06/.origin
+	/home/sa/big/centos7updates06/Packages
+	/home/sa/big/centos7updates06/cache
+	/home/sa/big/centos7updates06/repodata
+22279 files to be created on local target
+0 files to be replaced on local target
+0 files will need chown or chmod on local target
+2017-01-06 19:25:08,623 - hdfsget.thread - DEBUG - Thread#0 started
+2017-01-06 19:25:08,625 - hdfsget.thread - DEBUG - Thread#1 started
+2017-01-06 19:25:08,628 - hdfsget.thread - DEBUG - Thread#2 started
+2017-01-06 19:25:08,630 - hdfsget.thread - DEBUG - Thread#3 started
+2017-01-06 19:25:08,633 - hdfsget.thread - DEBUG - Thread#4 started
+2017-01-06 19:25:08,641 - hdfsget.thread - DEBUG - Thread#5 started
+2017-01-06 19:25:08,649 - hdfsget.thread - DEBUG - Thread#6 started
+2017-01-06 19:25:08,650 - hdfsget.thread - DEBUG - Thread#7 started
+2017-01-06 19:25:08,661 - hdfsget.thread - DEBUG - Thread#8 started
+2017-01-06 19:25:08,673 - hdfsget.thread - DEBUG - Thread#9 started
+hdfsmirror: 0/22270 files copied
+hdfsmirror: 139/22270 files copied
+hdfsmirror: 247/22270 files copied
+hdfsmirror: 382/22270 files copied
+hdfsmirror: 515/22270 files copied
+hdfsmirror: 636/22270 files copied
+hdfsmirror: 724/22270 files copied
+hdfsmirror: 852/22270 files copied
+hdfsmirror: 982/22270 files copied
+hdfsmirror: 1060/22270 files copied
+hdfsmirror: 1061/22270 files copied
+hdfsmirror: 1061/22270 files copied
+hdfsmirror: 1087/22270 files copied
+hdfsmirror: 1229/22270 files copied
+hdfsmirror: 1386/22270 files copied
+hdfsmirror: 1549/22270 files copied
+hdfsmirror: 1702/22270 files copied
+hdfsmirror: 1844/22270 files copied
+hdfsmirror: 2002/22270 files copied
+hdfsmirror: 2169/22270 files copied
+hdfsmirror: 2314/22270 files copied
+hdfsmirror: 2492/22270 files copied
+hdfsmirror: 2682/22270 files copied
+hdfsmirror: 2855/22270 files copied
+hdfsmirror: 2988/22270 files copied
+hdfsmirror: 3154/22270 files copied
+hdfsmirror: 3300/22270 files copied
+hdfsmirror: 3459/22270 files copied
+hdfsmirror: 3592/22270 files copied
+hdfsmirror: 3730/22270 files copied
+hdfsmirror: 3827/22270 files copied
+hdfsmirror: 3911/22270 files copied
+hdfsmirror: 3998/22270 files copied
+hdfsmirror: 4154/22270 files copied
+hdfsmirror: 4322/22270 files copied
+hdfsmirror: 4513/22270 files copied
+hdfsmirror: 4656/22270 files copied
+hdfsmirror: 4773/22270 files copied
+hdfsmirror: 4947/22270 files copied
+hdfsmirror: 5149/22270 files copied
+hdfsmirror: 5340/22270 files copied
+hdfsmirror: 5530/22270 files copied
+hdfsmirror: 5674/22270 files copied
+hdfsmirror: 5793/22270 files copied
+hdfsmirror: 5901/22270 files copied
+hdfsmirror: 5905/22270 files copied
+hdfsmirror: 5905/22270 files copied
+hdfsmirror: 5905/22270 files copied
+hdfsmirror: 5905/22270 files copied
+hdfsmirror: 5934/22270 files copied
+hdfsmirror: 6093/22270 files copied
+hdfsmirror: 6274/22270 files copied
+hdfsmirror: 6460/22270 files copied
+hdfsmirror: 6632/22270 files copied
+hdfsmirror: 6779/22270 files copied
+hdfsmirror: 6969/22270 files copied
+hdfsmirror: 7147/22270 files copied
+hdfsmirror: 7278/22270 files copied
+hdfsmirror: 7422/22270 files copied
+hdfsmirror: 7574/22270 files copied
+hdfsmirror: 7691/22270 files copied
+hdfsmirror: 7817/22270 files copied
+hdfsmirror: 7975/22270 files copied
+hdfsmirror: 8131/22270 files copied
+hdfsmirror: 8275/22270 files copied
+hdfsmirror: 8435/22270 files copied
+hdfsmirror: 8583/22270 files copied
+hdfsmirror: 8607/22270 files copied
+hdfsmirror: 8607/22270 files copied
+hdfsmirror: 8607/22270 files copied
+hdfsmirror: 8607/22270 files copied
+hdfsmirror: 8646/22270 files copied
+hdfsmirror: 8831/22270 files copied
+hdfsmirror: 8970/22270 files copied
+hdfsmirror: 9114/22270 files copied
+hdfsmirror: 9235/22270 files copied
+hdfsmirror: 9336/22270 files copied
+hdfsmirror: 9465/22270 files copied
+hdfsmirror: 9624/22270 files copied
+hdfsmirror: 9735/22270 files copied
+hdfsmirror: 9940/22270 files copied
+hdfsmirror: 10088/22270 files copied
+hdfsmirror: 10237/22270 files copied
+hdfsmirror: 10399/22270 files copied
+hdfsmirror: 10577/22270 files copied
+hdfsmirror: 10746/22270 files copied
+hdfsmirror: 10875/22270 files copied
+hdfsmirror: 11002/22270 files copied
+hdfsmirror: 11116/22270 files copied
+hdfsmirror: 11253/22270 files copied
+hdfsmirror: 11376/22270 files copied
+hdfsmirror: 11509/22270 files copied
+hdfsmirror: 11665/22270 files copied
+hdfsmirror: 11827/22270 files copied
+hdfsmirror: 11991/22270 files copied
+hdfsmirror: 12159/22270 files copied
+hdfsmirror: 12312/22270 files copied
+hdfsmirror: 12356/22270 files copied
+hdfsmirror: 12356/22270 files copied
+hdfsmirror: 12356/22270 files copied
+hdfsmirror: 12458/22270 files copied
+hdfsmirror: 12602/22270 files copied
+hdfsmirror: 12775/22270 files copied
+hdfsmirror: 12923/22270 files copied
+hdfsmirror: 13062/22270 files copied
+hdfsmirror: 13200/22270 files copied
+hdfsmirror: 13337/22270 files copied
+hdfsmirror: 13472/22270 files copied
+hdfsmirror: 13605/22270 files copied
+hdfsmirror: 13725/22270 files copied
+hdfsmirror: 13884/22270 files copied
+hdfsmirror: 14078/22270 files copied
+hdfsmirror: 14218/22270 files copied
+hdfsmirror: 14373/22270 files copied
+hdfsmirror: 14536/22270 files copied
+hdfsmirror: 14701/22270 files copied
+hdfsmirror: 14862/22270 files copied
+hdfsmirror: 15012/22270 files copied
+hdfsmirror: 15177/22270 files copied
+hdfsmirror: 15320/22270 files copied
+hdfsmirror: 15428/22270 files copied
+hdfsmirror: 15576/22270 files copied
+hdfsmirror: 15695/22270 files copied
+hdfsmirror: 15814/22270 files copied
+hdfsmirror: 15976/22270 files copied
+hdfsmirror: 16097/22270 files copied
+hdfsmirror: 16251/22270 files copied
+hdfsmirror: 16341/22270 files copied
+hdfsmirror: 16454/22270 files copied
+hdfsmirror: 16562/22270 files copied
+hdfsmirror: 16692/22270 files copied
+hdfsmirror: 16813/22270 files copied
+hdfsmirror: 16941/22270 files copied
+hdfsmirror: 17094/22270 files copied
+hdfsmirror: 17281/22270 files copied
+hdfsmirror: 17402/22270 files copied
+hdfsmirror: 17560/22270 files copied
+hdfsmirror: 17707/22270 files copied
+hdfsmirror: 17871/22270 files copied
+hdfsmirror: 18001/22270 files copied
+hdfsmirror: 18115/22270 files copied
+hdfsmirror: 18230/22270 files copied
+hdfsmirror: 18314/22270 files copied
+hdfsmirror: 18475/22270 files copied
+hdfsmirror: 18674/22270 files copied
+hdfsmirror: 18821/22270 files copied
+hdfsmirror: 18954/22270 files copied
+hdfsmirror: 19080/22270 files copied
+hdfsmirror: 19212/22270 files copied
+hdfsmirror: 19355/22270 files copied
+hdfsmirror: 19495/22270 files copied
+hdfsmirror: 19612/22270 files copied
+hdfsmirror: 19711/22270 files copied
+hdfsmirror: 19817/22270 files copied
+hdfsmirror: 19943/22270 files copied
+hdfsmirror: 20047/22270 files copied
+hdfsmirror: 20217/22270 files copied
+hdfsmirror: 20342/22270 files copied
+hdfsmirror: 20471/22270 files copied
+hdfsmirror: 20623/22270 files copied
+hdfsmirror: 20737/22270 files copied
+hdfsmirror: 20855/22270 files copied
+hdfsmirror: 21004/22270 files copied
+hdfsmirror: 21144/22270 files copied
+hdfsmirror: 21283/22270 files copied
+hdfsmirror: 21408/22270 files copied
+hdfsmirror: 21543/22270 files copied
+hdfsmirror: 21632/22270 files copied
+hdfsmirror: 21748/22270 files copied
+hdfsmirror: 21877/22270 files copied
+hdfsmirror: 22040/22270 files copied
+hdfsmirror: 22177/22270 files copied
+2017-01-06 19:30:54,207 - hdfsget.thread - DEBUG - Thread#7 ended. 2417 files handled
+2017-01-06 19:30:54,225 - hdfsget.thread - DEBUG - Thread#6 ended. 2346 files handled
+2017-01-06 19:30:54,252 - hdfsget.thread - DEBUG - Thread#9 ended. 2183 files handled
+2017-01-06 19:30:54,253 - hdfsget.thread - DEBUG - Thread#4 ended. 2213 files handled
+2017-01-06 19:30:54,345 - hdfsget.thread - DEBUG - Thread#1 ended. 2407 files handled
+hdfsmirror: 22270/22270 files copied
+2017-01-06 19:30:55,330 - hdfsget.thread - DEBUG - Thread#3 ended. 2117 files handled
+2017-01-06 19:30:56,221 - hdfsget.thread - DEBUG - Thread#0 ended. 2209 files handled
+2017-01-06 19:30:58,428 - hdfsget.thread - DEBUG - Thread#2 ended. 2411 files handled
+2017-01-06 19:30:58,484 - hdfsget.thread - DEBUG - Thread#5 ended. 2404 files handled
+2017-01-06 19:31:04,814 - hdfsget.thread - DEBUG - Thread#8 ended. 1572 files handled
+Operation count: 22310
+
+real	5m57.719s
+user	4m1.871s
+sys	2m19.230s
+[sa@en2 ~]$
+[sa@en2 ~]$
+[sa@en2 ~]$ time /home/sa/hdfsmirror/src/hdfsget.py --src /user/sa/big --dest /home/sa --nbrThreads 10 --report --force
+22279 files in 30 directories present in HDFS source
+22279 files in 30 directories already present in local target
+0 directories to be created on local target
+0 files to be created on local target
+0 files to be replaced on local target
+0 files will need chown or chmod on local target
+Operation count: 0
+
+real	0m3.205s
+user	0m1.551s
+sys	0m0.408s
+[sa@en2 ~]$

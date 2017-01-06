@@ -1,0 +1,517 @@
+[sa@en1 big]$ time /home/sa/hdfsmirror/src/hdfsput.py --src /home/sa/big --dest /user/sa --nbrThreads 20 --mode 0640 --directoryMode 0750 --owner sa --group users --report --checkMode
+22279 files in 30 directories present in local source
+0 files in 0 directories already present in HDFS target
+31 directories to be created on HDFS target
+	/user/sa/big
+	/user/sa/big/centos7updates01
+	/user/sa/big/centos7updates01/.origin
+	/user/sa/big/centos7updates01/Packages
+	/user/sa/big/centos7updates01/cache
+	/user/sa/big/centos7updates01/repodata
+	/user/sa/big/centos7updates02
+	/user/sa/big/centos7updates02/.origin
+	/user/sa/big/centos7updates02/Packages
+	/user/sa/big/centos7updates02/cache
+	/user/sa/big/centos7updates02/repodata
+	/user/sa/big/centos7updates03
+	/user/sa/big/centos7updates03/.origin
+	/user/sa/big/centos7updates03/Packages
+	/user/sa/big/centos7updates03/cache
+	/user/sa/big/centos7updates03/repodata
+	/user/sa/big/centos7updates04
+	/user/sa/big/centos7updates04/.origin
+	/user/sa/big/centos7updates04/Packages
+	/user/sa/big/centos7updates04/cache
+	/user/sa/big/centos7updates04/repodata
+	/user/sa/big/centos7updates05
+	/user/sa/big/centos7updates05/.origin
+	/user/sa/big/centos7updates05/Packages
+	/user/sa/big/centos7updates05/cache
+	/user/sa/big/centos7updates05/repodata
+	/user/sa/big/centos7updates06
+	/user/sa/big/centos7updates06/.origin
+	/user/sa/big/centos7updates06/Packages
+	/user/sa/big/centos7updates06/cache
+	/user/sa/big/centos7updates06/repodata
+22279 files to be created on HDFS target
+0 files differs from source in HDFS target (use --force [--backup] to overwrite)
+0 files will need chown or chmod on HDFS target
+Operation count: 22310
+
+real	0m0.648s
+user	0m0.512s
+sys	0m0.126s
+
+
+[sa@en1 big]$ du -hs .
+14G	.
+[sa@en1 big]$ find . -print | wc
+  22310   22310 2457227
+[sa@en1 big]$ find . -type f -print | wc
+  22279   22279 2456463
+
+[sa@en1 big]$ time /home/sa/hdfsmirror/src/hdfsput.py --src /home/sa/big --dest /user/sa --nbrThreads 20 --mode 0640 --directoryMode 0750 --owner sa --group users --report
+22279 files in 30 directories present in local source
+0 files in 0 directories already present in HDFS target
+31 directories to be created on HDFS target
+	/user/sa/big
+	/user/sa/big/centos7updates01
+	/user/sa/big/centos7updates01/.origin
+	/user/sa/big/centos7updates01/Packages
+	/user/sa/big/centos7updates01/cache
+	/user/sa/big/centos7updates01/repodata
+	/user/sa/big/centos7updates02
+	/user/sa/big/centos7updates02/.origin
+	/user/sa/big/centos7updates02/Packages
+	/user/sa/big/centos7updates02/cache
+	/user/sa/big/centos7updates02/repodata
+	/user/sa/big/centos7updates03
+	/user/sa/big/centos7updates03/.origin
+	/user/sa/big/centos7updates03/Packages
+	/user/sa/big/centos7updates03/cache
+	/user/sa/big/centos7updates03/repodata
+	/user/sa/big/centos7updates04
+	/user/sa/big/centos7updates04/.origin
+	/user/sa/big/centos7updates04/Packages
+	/user/sa/big/centos7updates04/cache
+	/user/sa/big/centos7updates04/repodata
+	/user/sa/big/centos7updates05
+	/user/sa/big/centos7updates05/.origin
+	/user/sa/big/centos7updates05/Packages
+	/user/sa/big/centos7updates05/cache
+	/user/sa/big/centos7updates05/repodata
+	/user/sa/big/centos7updates06
+	/user/sa/big/centos7updates06/.origin
+	/user/sa/big/centos7updates06/Packages
+	/user/sa/big/centos7updates06/cache
+	/user/sa/big/centos7updates06/repodata
+22279 files to be created on HDFS target
+0 files differs from source in HDFS target (use --force [--backup] to overwrite)
+0 files will need chown or chmod on HDFS target
+2017-01-06 19:05:57,914 - hdfsput.thread - DEBUG - Thread#0 started
+2017-01-06 19:05:57,922 - hdfsput.thread - DEBUG - Thread#1 started
+2017-01-06 19:05:57,936 - hdfsput.thread - DEBUG - Thread#2 started
+2017-01-06 19:05:57,953 - hdfsput.thread - DEBUG - Thread#3 started
+2017-01-06 19:05:57,956 - hdfsput.thread - DEBUG - Thread#4 started
+2017-01-06 19:05:57,973 - hdfsput.thread - DEBUG - Thread#5 started
+2017-01-06 19:05:57,990 - hdfsput.thread - DEBUG - Thread#6 started
+2017-01-06 19:05:58,009 - hdfsput.thread - DEBUG - Thread#7 started
+2017-01-06 19:05:58,031 - hdfsput.thread - DEBUG - Thread#8 started
+2017-01-06 19:05:58,048 - hdfsput.thread - DEBUG - Thread#9 started
+2017-01-06 19:05:58,081 - hdfsput.thread - DEBUG - Thread#10 started
+2017-01-06 19:05:58,164 - hdfsput.thread - DEBUG - Thread#11 started
+2017-01-06 19:05:58,180 - hdfsput.thread - DEBUG - Thread#12 started
+2017-01-06 19:05:58,207 - hdfsput.thread - DEBUG - Thread#13 started
+2017-01-06 19:05:58,235 - hdfsput.thread - DEBUG - Thread#14 started
+2017-01-06 19:05:58,361 - hdfsput.thread - DEBUG - Thread#15 started
+2017-01-06 19:05:58,434 - hdfsput.thread - DEBUG - Thread#16 started
+2017-01-06 19:05:58,494 - hdfsput.thread - DEBUG - Thread#17 started
+2017-01-06 19:05:58,575 - hdfsput.thread - DEBUG - Thread#18 started
+2017-01-06 19:05:58,623 - hdfsput.thread - DEBUG - Thread#19 started
+hdfsmirror: 1/22239 files copied
+hdfsmirror: 77/22239 files copied
+hdfsmirror: 139/22239 files copied
+hdfsmirror: 190/22239 files copied
+hdfsmirror: 236/22239 files copied
+hdfsmirror: 296/22239 files copied
+hdfsmirror: 363/22239 files copied
+hdfsmirror: 417/22239 files copied
+hdfsmirror: 488/22239 files copied
+hdfsmirror: 558/22239 files copied
+hdfsmirror: 624/22239 files copied
+hdfsmirror: 681/22239 files copied
+hdfsmirror: 729/22239 files copied
+hdfsmirror: 782/22239 files copied
+hdfsmirror: 826/22239 files copied
+hdfsmirror: 885/22239 files copied
+hdfsmirror: 962/22239 files copied
+hdfsmirror: 1029/22239 files copied
+hdfsmirror: 1082/22239 files copied
+hdfsmirror: 1140/22239 files copied
+hdfsmirror: 1203/22239 files copied
+hdfsmirror: 1257/22239 files copied
+hdfsmirror: 1323/22239 files copied
+hdfsmirror: 1384/22239 files copied
+hdfsmirror: 1453/22239 files copied
+hdfsmirror: 1515/22239 files copied
+hdfsmirror: 1572/22239 files copied
+hdfsmirror: 1647/22239 files copied
+hdfsmirror: 1703/22239 files copied
+hdfsmirror: 1749/22239 files copied
+hdfsmirror: 1817/22239 files copied
+hdfsmirror: 1851/22239 files copied
+hdfsmirror: 1897/22239 files copied
+hdfsmirror: 1955/22239 files copied
+hdfsmirror: 2023/22239 files copied
+hdfsmirror: 2085/22239 files copied
+hdfsmirror: 2156/22239 files copied
+hdfsmirror: 2229/22239 files copied
+hdfsmirror: 2288/22239 files copied
+hdfsmirror: 2345/22239 files copied
+hdfsmirror: 2406/22239 files copied
+hdfsmirror: 2451/22239 files copied
+hdfsmirror: 2511/22239 files copied
+hdfsmirror: 2580/22239 files copied
+hdfsmirror: 2643/22239 files copied
+hdfsmirror: 2718/22239 files copied
+hdfsmirror: 2794/22239 files copied
+hdfsmirror: 2872/22239 files copied
+hdfsmirror: 2946/22239 files copied
+hdfsmirror: 3025/22239 files copied
+hdfsmirror: 3099/22239 files copied
+hdfsmirror: 3181/22239 files copied
+hdfsmirror: 3265/22239 files copied
+hdfsmirror: 3333/22239 files copied
+hdfsmirror: 3406/22239 files copied
+hdfsmirror: 3476/22239 files copied
+hdfsmirror: 3531/22239 files copied
+hdfsmirror: 3598/22239 files copied
+hdfsmirror: 3660/22239 files copied
+hdfsmirror: 3726/22239 files copied
+hdfsmirror: 3790/22239 files copied
+hdfsmirror: 3852/22239 files copied
+hdfsmirror: 3872/22239 files copied
+hdfsmirror: 3889/22239 files copied
+hdfsmirror: 3909/22239 files copied
+hdfsmirror: 3951/22239 files copied
+hdfsmirror: 4027/22239 files copied
+hdfsmirror: 4103/22239 files copied
+hdfsmirror: 4178/22239 files copied
+hdfsmirror: 4247/22239 files copied
+hdfsmirror: 4298/22239 files copied
+hdfsmirror: 4360/22239 files copied
+hdfsmirror: 4428/22239 files copied
+hdfsmirror: 4504/22239 files copied
+hdfsmirror: 4573/22239 files copied
+hdfsmirror: 4644/22239 files copied
+hdfsmirror: 4693/22239 files copied
+hdfsmirror: 4704/22239 files copied
+hdfsmirror: 4721/22239 files copied
+hdfsmirror: 4781/22239 files copied
+hdfsmirror: 4813/22239 files copied
+hdfsmirror: 4846/22239 files copied
+hdfsmirror: 4888/22239 files copied
+hdfsmirror: 4959/22239 files copied
+hdfsmirror: 5048/22239 files copied
+hdfsmirror: 5140/22239 files copied
+hdfsmirror: 5232/22239 files copied
+hdfsmirror: 5307/22239 files copied
+hdfsmirror: 5373/22239 files copied
+hdfsmirror: 5456/22239 files copied
+hdfsmirror: 5476/22239 files copied
+hdfsmirror: 5490/22239 files copied
+hdfsmirror: 5561/22239 files copied
+hdfsmirror: 5581/22239 files copied
+hdfsmirror: 5645/22239 files copied
+hdfsmirror: 5719/22239 files copied
+hdfsmirror: 5787/22239 files copied
+hdfsmirror: 5857/22239 files copied
+hdfsmirror: 5928/22239 files copied
+hdfsmirror: 5999/22239 files copied
+hdfsmirror: 6039/22239 files copied
+hdfsmirror: 6078/22239 files copied
+hdfsmirror: 6139/22239 files copied
+hdfsmirror: 6200/22239 files copied
+hdfsmirror: 6260/22239 files copied
+hdfsmirror: 6332/22239 files copied
+hdfsmirror: 6399/22239 files copied
+hdfsmirror: 6460/22239 files copied
+hdfsmirror: 6520/22239 files copied
+hdfsmirror: 6555/22239 files copied
+hdfsmirror: 6606/22239 files copied
+hdfsmirror: 6664/22239 files copied
+hdfsmirror: 6727/22239 files copied
+hdfsmirror: 6772/22239 files copied
+hdfsmirror: 6816/22239 files copied
+hdfsmirror: 6889/22239 files copied
+hdfsmirror: 6952/22239 files copied
+hdfsmirror: 7012/22239 files copied
+hdfsmirror: 7051/22239 files copied
+hdfsmirror: 7120/22239 files copied
+hdfsmirror: 7163/22239 files copied
+hdfsmirror: 7177/22239 files copied
+hdfsmirror: 7187/22239 files copied
+hdfsmirror: 7187/22239 files copied
+hdfsmirror: 7188/22239 files copied
+hdfsmirror: 7198/22239 files copied
+hdfsmirror: 7248/22239 files copied
+hdfsmirror: 7320/22239 files copied
+hdfsmirror: 7392/22239 files copied
+hdfsmirror: 7459/22239 files copied
+hdfsmirror: 7527/22239 files copied
+hdfsmirror: 7574/22239 files copied
+hdfsmirror: 7636/22239 files copied
+hdfsmirror: 7713/22239 files copied
+hdfsmirror: 7784/22239 files copied
+hdfsmirror: 7868/22239 files copied
+hdfsmirror: 7944/22239 files copied
+hdfsmirror: 8015/22239 files copied
+hdfsmirror: 8090/22239 files copied
+hdfsmirror: 8168/22239 files copied
+hdfsmirror: 8217/22239 files copied
+hdfsmirror: 8249/22239 files copied
+hdfsmirror: 8319/22239 files copied
+hdfsmirror: 8358/22239 files copied
+hdfsmirror: 8422/22239 files copied
+hdfsmirror: 8476/22239 files copied
+hdfsmirror: 8526/22239 files copied
+hdfsmirror: 8583/22239 files copied
+hdfsmirror: 8649/22239 files copied
+hdfsmirror: 8720/22239 files copied
+hdfsmirror: 8785/22239 files copied
+hdfsmirror: 8850/22239 files copied
+hdfsmirror: 8910/22239 files copied
+hdfsmirror: 8962/22239 files copied
+hdfsmirror: 9008/22239 files copied
+hdfsmirror: 9058/22239 files copied
+hdfsmirror: 9067/22239 files copied
+hdfsmirror: 9073/22239 files copied
+hdfsmirror: 9076/22239 files copied
+hdfsmirror: 9096/22239 files copied
+hdfsmirror: 9165/22239 files copied
+hdfsmirror: 9193/22239 files copied
+hdfsmirror: 9248/22239 files copied
+hdfsmirror: 9301/22239 files copied
+hdfsmirror: 9369/22239 files copied
+hdfsmirror: 9438/22239 files copied
+hdfsmirror: 9515/22239 files copied
+hdfsmirror: 9608/22239 files copied
+hdfsmirror: 9692/22239 files copied
+hdfsmirror: 9751/22239 files copied
+hdfsmirror: 9849/22239 files copied
+hdfsmirror: 9912/22239 files copied
+hdfsmirror: 9978/22239 files copied
+hdfsmirror: 10023/22239 files copied
+hdfsmirror: 10081/22239 files copied
+hdfsmirror: 10123/22239 files copied
+hdfsmirror: 10210/22239 files copied
+hdfsmirror: 10309/22239 files copied
+hdfsmirror: 10397/22239 files copied
+hdfsmirror: 10488/22239 files copied
+hdfsmirror: 10573/22239 files copied
+hdfsmirror: 10664/22239 files copied
+hdfsmirror: 10758/22239 files copied
+hdfsmirror: 10841/22239 files copied
+hdfsmirror: 10913/22239 files copied
+hdfsmirror: 10986/22239 files copied
+hdfsmirror: 11077/22239 files copied
+hdfsmirror: 11132/22239 files copied
+hdfsmirror: 11192/22239 files copied
+hdfsmirror: 11255/22239 files copied
+hdfsmirror: 11286/22239 files copied
+hdfsmirror: 11308/22239 files copied
+hdfsmirror: 11372/22239 files copied
+hdfsmirror: 11442/22239 files copied
+hdfsmirror: 11519/22239 files copied
+hdfsmirror: 11593/22239 files copied
+hdfsmirror: 11662/22239 files copied
+hdfsmirror: 11726/22239 files copied
+hdfsmirror: 11784/22239 files copied
+hdfsmirror: 11843/22239 files copied
+hdfsmirror: 11905/22239 files copied
+hdfsmirror: 11959/22239 files copied
+hdfsmirror: 12028/22239 files copied
+hdfsmirror: 12082/22239 files copied
+hdfsmirror: 12135/22239 files copied
+hdfsmirror: 12190/22239 files copied
+hdfsmirror: 12232/22239 files copied
+hdfsmirror: 12299/22239 files copied
+hdfsmirror: 12373/22239 files copied
+hdfsmirror: 12439/22239 files copied
+hdfsmirror: 12496/22239 files copied
+hdfsmirror: 12563/22239 files copied
+hdfsmirror: 12619/22239 files copied
+hdfsmirror: 12659/22239 files copied
+hdfsmirror: 12709/22239 files copied
+hdfsmirror: 12765/22239 files copied
+hdfsmirror: 12786/22239 files copied
+hdfsmirror: 12848/22239 files copied
+hdfsmirror: 12913/22239 files copied
+hdfsmirror: 12986/22239 files copied
+hdfsmirror: 13053/22239 files copied
+hdfsmirror: 13105/22239 files copied
+hdfsmirror: 13174/22239 files copied
+hdfsmirror: 13244/22239 files copied
+hdfsmirror: 13276/22239 files copied
+hdfsmirror: 13316/22239 files copied
+hdfsmirror: 13360/22239 files copied
+hdfsmirror: 13424/22239 files copied
+hdfsmirror: 13459/22239 files copied
+hdfsmirror: 13501/22239 files copied
+hdfsmirror: 13578/22239 files copied
+hdfsmirror: 13630/22239 files copied
+hdfsmirror: 13698/22239 files copied
+hdfsmirror: 13754/22239 files copied
+hdfsmirror: 13820/22239 files copied
+hdfsmirror: 13895/22239 files copied
+hdfsmirror: 13921/22239 files copied
+hdfsmirror: 13984/22239 files copied
+hdfsmirror: 14047/22239 files copied
+hdfsmirror: 14117/22239 files copied
+hdfsmirror: 14178/22239 files copied
+hdfsmirror: 14235/22239 files copied
+hdfsmirror: 14312/22239 files copied
+hdfsmirror: 14353/22239 files copied
+hdfsmirror: 14416/22239 files copied
+hdfsmirror: 14470/22239 files copied
+hdfsmirror: 14522/22239 files copied
+hdfsmirror: 14576/22239 files copied
+hdfsmirror: 14645/22239 files copied
+hdfsmirror: 14694/22239 files copied
+hdfsmirror: 14759/22239 files copied
+hdfsmirror: 14801/22239 files copied
+hdfsmirror: 14843/22239 files copied
+hdfsmirror: 14899/22239 files copied
+hdfsmirror: 14965/22239 files copied
+hdfsmirror: 15035/22239 files copied
+hdfsmirror: 15112/22239 files copied
+hdfsmirror: 15199/22239 files copied
+hdfsmirror: 15291/22239 files copied
+hdfsmirror: 15384/22239 files copied
+hdfsmirror: 15484/22239 files copied
+hdfsmirror: 15491/22239 files copied
+hdfsmirror: 15551/22239 files copied
+hdfsmirror: 15617/22239 files copied
+hdfsmirror: 15667/22239 files copied
+hdfsmirror: 15737/22239 files copied
+hdfsmirror: 15805/22239 files copied
+hdfsmirror: 15883/22239 files copied
+hdfsmirror: 15962/22239 files copied
+hdfsmirror: 16045/22239 files copied
+hdfsmirror: 16124/22239 files copied
+hdfsmirror: 16175/22239 files copied
+hdfsmirror: 16231/22239 files copied
+hdfsmirror: 16298/22239 files copied
+hdfsmirror: 16327/22239 files copied
+hdfsmirror: 16403/22239 files copied
+hdfsmirror: 16436/22239 files copied
+hdfsmirror: 16480/22239 files copied
+hdfsmirror: 16556/22239 files copied
+hdfsmirror: 16610/22239 files copied
+hdfsmirror: 16682/22239 files copied
+hdfsmirror: 16716/22239 files copied
+hdfsmirror: 16753/22239 files copied
+hdfsmirror: 16779/22239 files copied
+hdfsmirror: 16826/22239 files copied
+hdfsmirror: 16849/22239 files copied
+hdfsmirror: 16915/22239 files copied
+hdfsmirror: 16955/22239 files copied
+hdfsmirror: 16991/22239 files copied
+hdfsmirror: 17044/22239 files copied
+hdfsmirror: 17089/22239 files copied
+hdfsmirror: 17147/22239 files copied
+hdfsmirror: 17189/22239 files copied
+hdfsmirror: 17249/22239 files copied
+hdfsmirror: 17315/22239 files copied
+hdfsmirror: 17377/22239 files copied
+hdfsmirror: 17419/22239 files copied
+hdfsmirror: 17490/22239 files copied
+hdfsmirror: 17525/22239 files copied
+hdfsmirror: 17544/22239 files copied
+hdfsmirror: 17624/22239 files copied
+hdfsmirror: 17682/22239 files copied
+hdfsmirror: 17742/22239 files copied
+hdfsmirror: 17801/22239 files copied
+hdfsmirror: 17859/22239 files copied
+hdfsmirror: 17912/22239 files copied
+hdfsmirror: 17967/22239 files copied
+hdfsmirror: 18022/22239 files copied
+hdfsmirror: 18032/22239 files copied
+hdfsmirror: 18093/22239 files copied
+hdfsmirror: 18161/22239 files copied
+hdfsmirror: 18231/22239 files copied
+hdfsmirror: 18272/22239 files copied
+hdfsmirror: 18334/22239 files copied
+hdfsmirror: 18367/22239 files copied
+hdfsmirror: 18416/22239 files copied
+hdfsmirror: 18480/22239 files copied
+hdfsmirror: 18551/22239 files copied
+hdfsmirror: 18622/22239 files copied
+hdfsmirror: 18684/22239 files copied
+hdfsmirror: 18761/22239 files copied
+hdfsmirror: 18823/22239 files copied
+hdfsmirror: 18863/22239 files copied
+hdfsmirror: 18935/22239 files copied
+hdfsmirror: 18995/22239 files copied
+hdfsmirror: 19069/22239 files copied
+hdfsmirror: 19129/22239 files copied
+hdfsmirror: 19189/22239 files copied
+hdfsmirror: 19252/22239 files copied
+hdfsmirror: 19312/22239 files copied
+hdfsmirror: 19384/22239 files copied
+hdfsmirror: 19445/22239 files copied
+hdfsmirror: 19513/22239 files copied
+hdfsmirror: 19573/22239 files copied
+hdfsmirror: 19628/22239 files copied
+hdfsmirror: 19682/22239 files copied
+hdfsmirror: 19744/22239 files copied
+hdfsmirror: 19800/22239 files copied
+hdfsmirror: 19865/22239 files copied
+hdfsmirror: 19928/22239 files copied
+hdfsmirror: 19980/22239 files copied
+hdfsmirror: 20058/22239 files copied
+hdfsmirror: 20110/22239 files copied
+hdfsmirror: 20179/22239 files copied
+hdfsmirror: 20254/22239 files copied
+hdfsmirror: 20331/22239 files copied
+hdfsmirror: 20393/22239 files copied
+hdfsmirror: 20478/22239 files copied
+hdfsmirror: 20559/22239 files copied
+hdfsmirror: 20640/22239 files copied
+hdfsmirror: 20726/22239 files copied
+hdfsmirror: 20808/22239 files copied
+hdfsmirror: 20876/22239 files copied
+hdfsmirror: 20946/22239 files copied
+hdfsmirror: 21022/22239 files copied
+hdfsmirror: 21112/22239 files copied
+hdfsmirror: 21201/22239 files copied
+hdfsmirror: 21290/22239 files copied
+hdfsmirror: 21352/22239 files copied
+hdfsmirror: 21355/22239 files copied
+hdfsmirror: 21383/22239 files copied
+hdfsmirror: 21461/22239 files copied
+hdfsmirror: 21488/22239 files copied
+hdfsmirror: 21548/22239 files copied
+hdfsmirror: 21627/22239 files copied
+hdfsmirror: 21693/22239 files copied
+hdfsmirror: 21777/22239 files copied
+hdfsmirror: 21850/22239 files copied
+hdfsmirror: 21930/22239 files copied
+hdfsmirror: 21975/22239 files copied
+hdfsmirror: 22042/22239 files copied
+hdfsmirror: 22098/22239 files copied
+hdfsmirror: 22151/22239 files copied
+hdfsmirror: 22199/22239 files copied
+2017-01-06 19:18:29,284 - hdfsput.thread - DEBUG - Thread#7 ended. 1137 files handled
+2017-01-06 19:18:29,297 - hdfsput.thread - DEBUG - Thread#16 ended. 1086 files handled
+2017-01-06 19:18:29,316 - hdfsput.thread - DEBUG - Thread#9 ended. 1101 files handled
+2017-01-06 19:18:29,331 - hdfsput.thread - DEBUG - Thread#14 ended. 1114 files handled
+2017-01-06 19:18:29,418 - hdfsput.thread - DEBUG - Thread#11 ended. 1136 files handled
+2017-01-06 19:18:29,421 - hdfsput.thread - DEBUG - Thread#13 ended. 1119 files handled
+2017-01-06 19:18:29,509 - hdfsput.thread - DEBUG - Thread#15 ended. 982 files handled
+2017-01-06 19:18:29,541 - hdfsput.thread - DEBUG - Thread#1 ended. 1121 files handled
+2017-01-06 19:18:29,544 - hdfsput.thread - DEBUG - Thread#12 ended. 1082 files handled
+2017-01-06 19:18:29,588 - hdfsput.thread - DEBUG - Thread#3 ended. 1122 files handled
+2017-01-06 19:18:29,589 - hdfsput.thread - DEBUG - Thread#4 ended. 1123 files handled
+2017-01-06 19:18:29,597 - hdfsput.thread - DEBUG - Thread#17 ended. 1126 files handled
+2017-01-06 19:18:29,614 - hdfsput.thread - DEBUG - Thread#2 ended. 1134 files handled
+2017-01-06 19:18:29,615 - hdfsput.thread - DEBUG - Thread#0 ended. 1148 files handled
+2017-01-06 19:18:29,745 - hdfsput.thread - DEBUG - Thread#10 ended. 1119 files handled
+2017-01-06 19:18:29,880 - hdfsput.thread - DEBUG - Thread#19 ended. 1143 files handled
+hdfsmirror: 22239/22239 files copied
+2017-01-06 19:18:30,853 - hdfsput.thread - DEBUG - Thread#6 ended. 1110 files handled
+2017-01-06 19:18:33,294 - hdfsput.thread - DEBUG - Thread#5 ended. 1129 files handled
+2017-01-06 19:18:33,513 - hdfsput.thread - DEBUG - Thread#18 ended. 1119 files handled
+2017-01-06 19:18:34,932 - hdfsput.thread - DEBUG - Thread#8 ended. 1128 files handled
+Operation count: 22310
+
+real	12m40.024s
+user	8m36.369s
+sys	3m15.829s
+[sa@en1 big]$
+
+NOTE: During this put, another side was performing gets, thus impacting performances
+
+(A previous shot give is 11 mn)  
+  
+  
