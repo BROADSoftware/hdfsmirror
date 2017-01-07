@@ -147,8 +147,10 @@ def main():
         if ft == "NOT_FOUND":
             directoriesToCreate.append(p.dest)
             destTree = buildTree.buildEmptyTree(p.dest)
-        else:
+        elif ft == "DIRECTORY":
             destTree = buildTree.buildHdfsTree(webHDFS, p.dest)
+        else:
+            misc.ERROR("HDFS path {0}: Invalid type: '{1}'", p.dest, ft)
     else:
         destTree = buildTree.buildHdfsTree(webHDFS, p.dest)
     

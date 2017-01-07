@@ -120,12 +120,13 @@ If `src` path ends with "/", only inside contents of that directory are copied t
 
 ## Namenode lookup
 
-hdfsmirror perform all its operation through WebHDFS REST API. So it need to know the url of the active namenode. It will try to lookup such information by parsing the file `hdfs-site.xml` in the folder `/etc/hadoop/conf`. 
+hdfsmirror performs all its operation through WebHDFS REST API. So it need to know the URL of the active Hadoop namenode. It will try to lookup such information by parsing the file `hdfs-site.xml` in the folder `/etc/hadoop/conf`. 
 
 You can set an alternate configuration folder by using the `--hadoopConfDir` option. Or you can directly set this url by using the `--webHdfsEndpoint` option (i.e. `--webHdfsEndpoint amenode.mycluster.com:50070`).
 
 Using this last method will allow you to use hdfsmirror.py from outside your cluster, without local HDFS client configuration. But, keep in mind the WebHDFS API need to be able to reach directly not only the namenode, but also all datanodes of the target cluster.
 
+`--webHdfsEndpoint` value could also be a comma separated list of entry points, which will be checked up to a valid one. This will allow Namenode H.A. handling. 
 
 ## License
 
