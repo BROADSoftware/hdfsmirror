@@ -35,24 +35,20 @@ tlogger = logging.getLogger("hdfsget.thread")
 
 
 def applyAttrOnNewFile(path, p):
-    owner = p.defaultOwner if p.owner is None else p.owner
-    group = p.defaultGroup if p.group is None else p.group
-    mode = p.defaultMode if p.mode is None else p.mode
-    if owner != None:
-        os.chown(path, misc.getUidFromName(owner), -1)
-    if group != None:
-        os.chown(path, -1, misc.getGidFromName(group))
-    if mode != None:
+    if p.owner != None:
+        os.chown(path, misc.getUidFromName(p.owner), -1)
+    if p.group != None:
+        os.chown(path, -1, misc.getGidFromName(p.group))
+    if p.mode != None:
         os.chmod(path, int(p.mode, 8))
 
 
 def applyAttrOnNewDirectory(path, p):
-    owner = p.defaultOwner if p.owner is None else p.owner
-    group = p.defaultGroup if p.group is None else p.group
-    if owner != None:
-        os.chown(path, misc.getUidFromName(owner), -1)
-    if group != None:
-        os.chown(path, -1, misc.getGidFromName(group))
+    if p.owner != None:
+        os.chown(path, misc.getUidFromName(p.owner), -1)
+    if p.group != None:
+        os.chown(path, -1, misc.getGidFromName(p.group))
+    # Mode is defined at creation
 
 
 def adjustAttrOnExistingFile(filePath, fileStatus, p):
@@ -64,6 +60,14 @@ def adjustAttrOnExistingFile(filePath, fileStatus, p):
         os.chmod(filePath, int(p.mode, 8))
 
 
+def adjustAttrOnExistingDir(dirPath, dirStatus, p):
+    if p.owner != None and p.owner != dirStatus['owner']:
+        os.chown(dirPath, misc.getUidFromName(p.owner), -1)
+    if p.group != None and p.group != dirStatus['group']:
+        os.chown(dirPath, -1, misc.getGidFromName(p.group))
+    if(p.directoryMode != None and p.directoryMode != dirStatus['mode']):
+        os.chmod(dirPath, int(p.directoryMode, 8))
+
 def checkAttrOnExistingFile(fileStatus, p):
     if p.owner != None and p.owner != fileStatus['owner']:
         return True
@@ -72,6 +76,16 @@ def checkAttrOnExistingFile(fileStatus, p):
     if(p.mode != None and fileStatus['mode'] != p.mode):
         return True
     return False
+
+def checkAttrOnExistingDir(dirStatus, p):
+    if p.owner != None and p.owner != dirStatus['owner']:
+        return True
+    if p.group != None and p.group != dirStatus['group']:
+        return True
+    if(p.directoryMode != None and p.directoryMode != dirStatus['mode']):
+        return True
+    return False
+
 
 def backupLocalFile(webhdfs, path):
     #ext = time.strftime("%Y-%m-%d@%H:%M:%S", time.localtime(time.time()))
@@ -109,9 +123,6 @@ class PutThread(Thread):
             applyAttrOnNewFile(destPath, self.p)
             self.fileCount += 1
 
-class Parameters:
-    pass
-
 
 def main():
     mydir =  os.path.dirname(os.path.realpath(__file__)) 
@@ -129,7 +140,7 @@ def main():
     webHDFS = WebHDFS.lookup(p)
 
     
-    ft = webHDFS.getPathType(p.src)
+    (ft, _) = webHDFS.getPathTypeAndStatus(p.src)
     if ft == "NOT_FOUND":
         misc.ERROR("Path {0} non existing on HDFS", p.dest)
     if ft == "FILE":
@@ -147,6 +158,7 @@ def main():
         misc.ERROR("Path {0} is not a directory", p.dest)
     
     directoriesToCreate = []
+    directoriesToAdjust = []
     filesToCreate = []
     filesToReplace = []
     filesToAdjust = []
@@ -160,6 +172,10 @@ def main():
             destTree = buildTree.buildEmptyTree(p.dest)
         else:
             destTree = buildTree.buildLocalTree(p.dest)
+            dirStatus = buildTree.getLocalPathStatus(p.dest)
+            destTree['directories'][p.dest] = dirStatus  # Will need to to apply modification later on
+            if checkAttrOnExistingDir(dirStatus, p):
+                directoriesToAdjust.append(p.dest)
     else:
         destTree = buildTree.buildLocalTree( p.dest)
     
@@ -170,7 +186,10 @@ def main():
     
     # Lookup all folder to create on target
     for dirName in srcTree['directories']:
-        if dirName not in destTree['directories']:
+        if dirName in destTree['directories']:
+            if checkAttrOnExistingDir(destTree['directories'][dirName], p):
+                directoriesToAdjust.append(dirName)
+        else:
             dirPath = os.path.join(destTree['rroot'], dirName)
             directoriesToCreate.append(dirPath)
 
@@ -191,13 +210,16 @@ def main():
     if(p.report):
         print("{0} files in {1} directories present in HDFS source".format(len(srcTree['files']), len(srcTree['directories'])))
         print("{0} files in {1} directories already present in local target".format(len(destTree['files']), len(destTree['directories'])))
+
         print("{0} directories to be created on local target".format(len(directoriesToCreate)))
         for f in directoriesToCreate:
             print "\t" + f
+
         print("{0} files to be created on local target".format(len(filesToCreate)))
         if(p.reportFiles):
             for f in filesToCreate:
                 print "\t" + os.path.join(destTree['rroot'], f)
+
         if p.force:
             print("{0} files to be replaced on local target".format(len(filesToReplace)))
         else:
@@ -205,12 +227,25 @@ def main():
         if(p.reportFiles):
             for f in filesToReplace:
                 print "\t" + os.path.join(destTree['rroot'], f)
-        print("{0} files will need chown or chmod on local target".format(len(filesToAdjust)))
+
+        if p.forceExt:
+            print("{0} files owner/group/mode will be changed on local target".format(len(filesToAdjust)))
+        else:
+            print("{0} files owner/group/mode differs from source on local target (use --forceExt to overwrite)".format(len(filesToAdjust)))
         if(p.reportFiles):
             for f in filesToAdjust:
                 print "\t" + os.path.join(destTree['rroot'], f)
 
-    nbrOperations = len(directoriesToCreate) + len(filesToAdjust) + len(filesToCreate) + len(filesToReplace) 
+        if p.forceExt:
+            print("{0} directories owner/group/mode will be changed on local target".format(len(directoriesToAdjust)))
+        else:
+            print("{0} directories owner/group/mode differs from source on local target (use --forceExt to overwrite)".format(len(directoriesToAdjust)))
+        if(p.reportFiles):
+            for f in directoriesToAdjust:
+                print "\t" + os.path.join(destTree['rroot'], f)
+
+
+    nbrOperations = len(directoriesToCreate) + len(filesToAdjust) + len(filesToCreate) + len(filesToReplace) + len(directoriesToAdjust)
 
     if not p.checkMode:
         for f in directoriesToCreate:
@@ -219,10 +254,15 @@ def main():
             else:
                 os.mkdir(f)
             applyAttrOnNewDirectory(f, p)
-        for f in filesToAdjust:
-            filePath = os.path.join(destTree['rroot'], f)
-            fileStatus = destTree['files'][f]
-            adjustAttrOnExistingFile(filePath, fileStatus, p)
+        if p.forceExt:
+            for f in directoriesToAdjust:
+                dirPath = os.path.join(destTree['rroot'], f)
+                dirStatus = destTree['directories'][f]
+                adjustAttrOnExistingDir(dirPath, dirStatus, p)
+            for f in filesToAdjust:
+                filePath = os.path.join(destTree['rroot'], f)
+                fileStatus = destTree['files'][f]
+                adjustAttrOnExistingFile(filePath, fileStatus, p)
         if len(filesToCreate) > 0 or len(filesToReplace) > 0:
             queue = Queue.Queue()
             for f in filesToCreate:

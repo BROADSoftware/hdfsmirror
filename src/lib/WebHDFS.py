@@ -42,19 +42,25 @@ class WebHDFS:
             return (False, "{0}  =>  Response code: {1}".format(url, e.strerror))
                 
 
-    def getPathType(self, path):
+    def getPathTypeAndStatus(self, path):
         url = "http://{0}/webhdfs/v1{1}?{2}op=GETFILESTATUS".format(self.endpoint, path, self.auth)
-        logger.debug(url)
         resp = requests.get(url)
         if resp.status_code == 200:
             result = resp.json()
-            return result['FileStatus']['type']
+            fs = {}
+            fs['size'] = result['FileStatus']['length']
+            fs['modificationTime'] = result['FileStatus']['modificationTime']/1000
+            fs['mode'] = "0" + result['FileStatus']['permission']
+            fs['owner'] = result['FileStatus']['owner']
+            fs['group'] = result['FileStatus']['group']
+            return (result['FileStatus']['type'], fs)
         elif resp.status_code == 404:
-            return "NOT_FOUND"
+            return ("NOT_FOUND", None)
         elif resp.status_code == 403:
-            return "NO_ACCESS"
+            return ("NO_ACCESS", None)
         else:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
+
     
     def put(self, url):
         resp = requests.put(url, allow_redirects=False)

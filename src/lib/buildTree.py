@@ -118,6 +118,18 @@ def buildLocalTree(rroot):
     tree['files'] = fileMap
     tree['directories'] = dirMap
     return tree
+
+
+def getLocalPathStatus(path):
+    stat = os.stat(path)
+    f = {}
+    f['size'] = stat.st_size
+    f['modificationTime'] = int(stat.st_mtime)
+    f['mode'] = "0" + oct(stat.st_mode)[-3:]
+    f['owner'] = misc.getUserNameFromId(stat.st_uid)
+    f['group'] = misc.getGroupNameGroupId(stat.st_gid)
+    return f
+    
     
 def buildHdfsTree(webHdfs, rroot):
     tree = {}

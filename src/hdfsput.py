@@ -35,25 +35,20 @@ tlogger = logging.getLogger("hdfsput.thread")
 
 
 def applyAttrOnNewFile(webhdfs, path, p):
-    owner = p.defaultOwner if p.owner is None else p.owner
-    group = p.defaultGroup if p.group is None else p.group
-    mode = p.defaultMode if p.mode is None else p.mode
-    if owner != None:
-        webhdfs.setOwner(path, owner)
-    if group != None:
-        webhdfs.setGroup(path, group)
-    if mode != None:
-        webhdfs.setPermission(path, mode)
+    if p.owner != None:
+        webhdfs.setOwner(path,p.owner)
+    if p.group != None:
+        webhdfs.setGroup(path, p.group)
+    if p.mode != None:
+        webhdfs.setPermission(path, p.mode)
 
 
 def applyAttrOnNewDirectory(webhdfs, path, p):
-    owner = p.defaultOwner if p.owner is None else p.owner
-    group = p.defaultGroup if p.group is None else p.group
-    if owner != None:
-        webhdfs.setOwner(path, owner)
-    if group != None:
-        webhdfs.setGroup(path, group)
-
+    if p.owner != None:
+        webhdfs.setOwner(path, p.owner)
+    if p.group != None:
+        webhdfs.setGroup(path, p.group)
+    # Mode is defined at creation
 
 def adjustAttrOnExistingFile(webhdfs, filePath, fileStatus, p):
     if p.owner != None and p.owner != fileStatus['owner']:
@@ -63,6 +58,14 @@ def adjustAttrOnExistingFile(webhdfs, filePath, fileStatus, p):
     if(p.mode != None and fileStatus['mode'] != p.mode):
         webhdfs.setPermission(filePath, p.mode)
 
+def adjustAttrOnExistingDir(webhdfs, dirPath, dirStatus, p):
+    if p.owner != None and p.owner != dirStatus['owner']:
+        webhdfs.setOwner(dirPath, p.owner)
+    if p.group != None and p.group != dirStatus['group']:
+        webhdfs.setGroup(dirPath, p.group)
+    if(p.directoryMode != None and p.directoryMode != dirStatus['mode']):
+        webhdfs.setPermission(dirPath, p.directoryMode)
+
 
 def checkAttrOnExistingFile(fileStatus, p):
     if p.owner != None and p.owner != fileStatus['owner']:
@@ -70,6 +73,15 @@ def checkAttrOnExistingFile(fileStatus, p):
     if p.group != None and p.group != fileStatus['group']:
         return True
     if(p.mode != None and fileStatus['mode'] != p.mode):
+        return True
+    return False
+
+def checkAttrOnExistingDir(dirStatus, p):
+    if p.owner != None and p.owner != dirStatus['owner']:
+        return True
+    if p.group != None and p.group != dirStatus['group']:
+        return True
+    if(p.directoryMode != None and p.directoryMode != dirStatus['mode']):
         return True
     return False
 
@@ -124,7 +136,7 @@ def main():
         misc.ERROR("{0} must be an existing folder".format(p.src))
     srcTree = buildTree.buildLocalTree(p.src)
     
-    ft = webHDFS.getPathType(p.dest)
+    (ft, _) = webHDFS.getPathTypeAndStatus(p.dest)
     if ft == "NOT_FOUND":
         misc.ERROR("Path {0} non existing on HDFS", p.dest)
     if ft == "FILE":
@@ -135,6 +147,7 @@ def main():
         misc.ERROR("HDFS path {0}: Unknown type: '{1}'", p.dest, ft)
 
     directoriesToCreate = []
+    directoriesToAdjust = []
     filesToCreate = []
     filesToReplace = []
     filesToAdjust = []
@@ -143,12 +156,15 @@ def main():
     if not srcTree['slashTerminated']:
         x = os.path.basename(srcTree['rroot'])
         p.dest = os.path.join(p.dest, x)
-        ft = webHDFS.getPathType(p.dest)
+        (ft, dirStatus) = webHDFS.getPathTypeAndStatus(p.dest)
         if ft == "NOT_FOUND":
             directoriesToCreate.append(p.dest)
             destTree = buildTree.buildEmptyTree(p.dest)
         elif ft == "DIRECTORY":
             destTree = buildTree.buildHdfsTree(webHDFS, p.dest)
+            destTree['directories'][p.dest] = dirStatus  # Will need to to apply modification later on
+            if checkAttrOnExistingDir(dirStatus, p):
+                directoriesToAdjust.append(p.dest)
         else:
             misc.ERROR("HDFS path {0}: Invalid type: '{1}'", p.dest, ft)
     else:
@@ -159,9 +175,12 @@ def main():
         logger.debug("Source (local) files:\n" + misc.pprint2s(srcTree))
         logger.debug("Target (HDFS) files:\n" + misc.pprint2s(destTree))
 
-    # Lookup all folder to create on target
+    # Lookup all folder to create or adjust on target
     for dirName in srcTree['directories']:
-        if dirName not in destTree['directories']:
+        if dirName in destTree['directories']:
+            if checkAttrOnExistingDir(destTree['directories'][dirName], p):
+                directoriesToAdjust.append(dirName)
+        else:
             dirPath = os.path.join(destTree['rroot'], dirName)
             directoriesToCreate.append(dirPath)
                
@@ -181,13 +200,16 @@ def main():
     if(p.report):
         print("{0} files in {1} directories present in local source".format(len(srcTree['files']), len(srcTree['directories'])))
         print("{0} files in {1} directories already present in HDFS target".format(len(destTree['files']), len(destTree['directories'])))
+
         print("{0} directories to be created on HDFS target".format(len(directoriesToCreate)))
         for f in directoriesToCreate:
             print "\t" + f
+
         print("{0} files to be created on HDFS target".format(len(filesToCreate)))
         if(p.reportFiles):
             for f in filesToCreate:
                 print "\t" + os.path.join(destTree['rroot'], f)
+
         if p.force:
             print("{0} files to be replaced on HDFS target".format(len(filesToReplace)))
         else:
@@ -195,21 +217,38 @@ def main():
         if(p.reportFiles):
             for f in filesToReplace:
                 print "\t" + os.path.join(destTree['rroot'], f)
-        print("{0} files will need chown or chmod on HDFS target".format(len(filesToAdjust)))
+
+        if p.forceExt:
+            print("{0} files owner/group/mode will be changed on HDFS target".format(len(filesToAdjust)))
+        else:
+            print("{0} files owner/group/mode differs from source on HDFS target (use --forceExt to overwrite)".format(len(filesToAdjust)))
         if(p.reportFiles):
             for f in filesToAdjust:
                 print "\t" + os.path.join(destTree['rroot'], f)
 
-    nbrOperations = len(directoriesToCreate) + len(filesToAdjust) + len(filesToCreate) + len(filesToReplace) 
+        if p.forceExt:
+            print("{0} directories owner/group/mode will be changed on HDFS target".format(len(directoriesToAdjust)))
+        else:
+            print("{0} directories owner/group/mode differs from source on HDFS target (use --forceExt to overwrite)".format(len(directoriesToAdjust)))
+        if(p.reportFiles):
+            for f in directoriesToAdjust:
+                print "\t" + os.path.join(destTree['rroot'], f)
+
+    nbrOperations = len(directoriesToCreate) + len(filesToAdjust) + len(filesToCreate) + len(filesToReplace) + len(directoriesToAdjust)
 
     if not p.checkMode:
         for f in directoriesToCreate:
             webHDFS.createFolder(f, p.directoryMode)
             applyAttrOnNewDirectory(webHDFS, f, p)
-        for f in filesToAdjust:
-            filePath = os.path.join(destTree['rroot'], f)
-            fileStatus = destTree['files'][f]
-            adjustAttrOnExistingFile(webHDFS, filePath, fileStatus, p)
+        if p.forceExt:
+            for f in directoriesToAdjust:
+                dirPath = os.path.join(destTree['rroot'], f)
+                dirStatus = destTree['directories'][f]
+                adjustAttrOnExistingDir(webHDFS, dirPath, dirStatus, p)
+            for f in filesToAdjust:
+                filePath = os.path.join(destTree['rroot'], f)
+                fileStatus = destTree['files'][f]
+                adjustAttrOnExistingFile(webHDFS, filePath, fileStatus, p)
         if len(filesToCreate) > 0 or len(filesToReplace) > 0:
             queue = Queue.Queue()
             for f in filesToCreate:

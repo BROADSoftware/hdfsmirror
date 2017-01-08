@@ -41,11 +41,9 @@ def parseArg(mydir):
     parser.add_argument('--group', required=False, help="group for all files.")
     parser.add_argument('--mode', required=False, help="mode for all files.")
 
-    parser.add_argument('--defaultOwner', required=False, help="owner for newly create files.")
-    parser.add_argument('--defaultGroup', required=False, help="group for newly create files.")
-    parser.add_argument('--defaultMode', required=False, help="mode for newly create files.")
-
     parser.add_argument('--directoryMode', required=False)
+    
+    parser.add_argument('--forceExt',  action='store_true')
     
     parser.add_argument('--hdfsUser', required=False, default="hdfs")
     parser.add_argument('--hadoopConfDir', required=False, default="/etc/hadoop/conf")
@@ -62,17 +60,15 @@ def parseArg(mydir):
     p.nbrThreads = params.nbrThreads
     p.yamlLoggingConf = params.yamlLoggingConf
     
-    p.backup = params.backup
-    p.defaultGroup = params.defaultGroup
-    p.defaultMode = params.defaultMode
-    p.defaultOwner = params.defaultOwner
-    p.directoryMode = params.directoryMode
     p.force = params.force
-    p.group = params.group
-    p.hadoopConfDir = params.hadoopConfDir
-    p.hdfsUser = params.hdfsUser
-    p.mode = params.mode
+    p.backup = params.backup
     p.owner = params.owner
+    p.group = params.group
+    p.mode = params.mode
+    p.directoryMode = params.directoryMode
+    p.forceExt = params.forceExt
+    p.hdfsUser = params.hdfsUser
+    p.hadoopConfDir = params.hadoopConfDir
     p.webhdfsEndpoint = params.webhdfsEndpoint
     
     
@@ -99,19 +95,6 @@ def parseArg(mydir):
                 misc.ERROR("mode must be in octal form")
         p.mode = oct(p.mode)
         #print '{ mode_type: "' + str(type(p.mode)) + '",  mode_value: "' + str(p.mode) + '"}'
-    if p.defaultMode != None:
-        if not isinstance(p.defaultMode, int):
-            try:
-                p.defaultMode = int(p.defaultMode, 8)
-            except Exception:
-                misc.ERROR("default_mode must be in octal form")
-        p.defaultMode = oct(p.defaultMode)
-    if(p.owner != None and p.defaultOwner != None):
-        misc.ERROR("There is no reason to define both owner and default_owner")
-    if(p.group != None and p.defaultGroup != None):
-        misc.ERROR("There is no reason to define both group and default_group")
-    if(p.mode != None and p.defaultMode != None):
-        misc.ERROR("There is no reason to define both mode and default_mode")
     
     return p
 
