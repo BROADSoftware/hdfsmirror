@@ -37,17 +37,14 @@ And, last steps, make files executable:
 
 Simply launch hdfsput.py, or hdfsget.py
 
-	src/hdfsput.py --help
-	
 	usage: hdfsput.py [-h] --src SRC --dest DEST [--checkMode] [--report]
-	                  [--reportFiles] [--nbrThreads NBRTHREADS]
-	                  [--yamlLoggingConf YAMLLOGGINGCONF] [--force] [--backup]
-	                  [--owner OWNER] [--group GROUP] [--mode MODE]
-	                  [--defaultOwner DEFAULTOWNER] [--defaultGroup DEFAULTGROUP]
-	                  [--defaultMode DEFAULTMODE] [--directoryMode DIRECTORYMODE]
-	                  [--hadoopConfDir HADOOPCONFDIR] [--hdfsUser HDFSUSER]
-	                  [--webhdfsEndpoint WEBHDFSENDPOINT]
-	
+                  [--reportFiles] [--nbrThreads NBRTHREADS]
+                  [--yamlLoggingConf YAMLLOGGINGCONF] [--force] [--backup]
+                  [--owner OWNER] [--group GROUP] [--mode MODE]
+                  [--directoryMode DIRECTORYMODE] [--forceExt]
+                  [--hdfsUser HDFSUSER] [--hadoopConfDir HADOOPCONFDIR]
+                  [--webhdfsEndpoint WEBHDFSENDPOINT]
+
 	optional arguments:
 	  -h, --help            show this help message and exit
 	  --src SRC
@@ -63,16 +60,12 @@ Simply launch hdfsput.py, or hdfsget.py
 	  --owner OWNER         owner for all files.
 	  --group GROUP         group for all files.
 	  --mode MODE           mode for all files.
-	  --defaultOwner DEFAULTOWNER
-	                        owner for newly create files.
-	  --defaultGroup DEFAULTGROUP
-	                        group for newly create files.
-	  --defaultMode DEFAULTMODE
-	                        mode for newly create files.
 	  --directoryMode DIRECTORYMODE
+	  --forceExt
 	  --hdfsUser HDFSUSER
 	  --hadoopConfDir HADOOPCONFDIR
-	  --webhdfsEndpoint WEBHDFSENDPOINT	
+	  --webhdfsEndpoint WEBHDFSENDPOINT
+	  
 	  
 Here is a short explanation of the options:
 
@@ -92,6 +85,8 @@ Here is a short explanation of the options:
 
 * `force:` Boolean. Default: No. Allow overwrite of target file if they differ from source.
 
+* `forceExt:` Boolean. Default: No. If Yes, provided owner/group/mode value will be applied on existing files and directories on target. If no, only the newley created file and directories will be adjusted.  
+
 * `backup:` Boolean. Default: No. In case of overwrite, perform a backup of original file.
 
 * `owner:` If set, all files on target will belong to this user.
@@ -100,13 +95,7 @@ Here is a short explanation of the options:
 
 * `mode:` If set, all files on target will have this permission. Must be a string representing an octal value (i.e: "0644")
 
-* `defaultOwner:` Same as owner, but apply only on newly created files. Existing target files will not be impacted.
-
-* `defaultGroup:` Same as group, but apply only on newly created files. Existing target files will not be impacted.
-
-* `defaultMode:` Same as mode, but apply only on newly created files. Existing target files will not be impacted.
-
-* `directoryMode:` permission for newly create directories. (owner and group will the same as files). Existing directories will not be impacted.
+* `directoryMode:` permission for directories. (owner and group will the same as files). 
 
 * `hdfsUser:` Default: "hdfs". This user on behalf all HDFS operation will be performed. Of course must be able to read an write on concerned folder.
 

@@ -183,7 +183,8 @@ def main():
         else:
             dirPath = os.path.join(destTree['rroot'], dirName)
             directoriesToCreate.append(dirPath)
-               
+
+    directoriesToAdjust.sort()
     directoriesToCreate.sort()
 
     for fileName in srcTree['files']:
