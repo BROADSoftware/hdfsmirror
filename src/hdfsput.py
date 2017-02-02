@@ -28,7 +28,7 @@ import Queue
 from threading import Thread
 import time
 import lib.common as common
-
+import atexit
 
 logger = logging.getLogger("hdfsput.main")
 tlogger = logging.getLogger("hdfsput.thread")
@@ -120,6 +120,18 @@ class PutThread(Thread):
             self.webHDFS.setModificationTime(destPath, modTime)
             applyAttrOnNewFile(self.webHDFS, destPath, self.p)
             self.fileCount += 1
+            
+            
+            
+# To be sure we cancel kerberos delegation token, if any
+webHDFS = None
+
+def cleanup():
+    if webHDFS != None:
+        webHDFS.close()
+
+atexit.register(cleanup)
+
 
 def main():
     mydir =  os.path.dirname(os.path.realpath(__file__)) 
@@ -130,6 +142,7 @@ def main():
         
     logging.config.dictConfig(yaml.load(open(p.loggingConfFile)))
        
+    global webHDFS
     webHDFS = WebHDFS.lookup(p)
 
     if not os.path.isdir(p.src):

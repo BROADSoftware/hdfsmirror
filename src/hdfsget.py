@@ -28,6 +28,7 @@ import Queue
 from threading import Thread
 import time
 import lib.common as common
+import atexit 
 
 
 logger = logging.getLogger("hdfsget.main")
@@ -124,6 +125,16 @@ class PutThread(Thread):
             self.fileCount += 1
 
 
+# To be sure we cancel kerberos delegation token, if any
+webHDFS = None
+
+def cleanup():
+    if webHDFS != None:
+        webHDFS.close()
+
+atexit.register(cleanup)
+
+
 def main():
     mydir =  os.path.dirname(os.path.realpath(__file__)) 
     p = common.parseArg(mydir)
@@ -137,18 +148,19 @@ def main():
         p.report = True
     
        
+    global webHDFS
     webHDFS = WebHDFS.lookup(p)
 
     
     (ft, _) = webHDFS.getPathTypeAndStatus(p.src)
     if ft == "NOT_FOUND":
-        misc.ERROR("Path {0} non existing on HDFS", p.dest)
+        misc.ERROR("Path {0} non existing on HDFS", p.src)
     if ft == "FILE":
-        misc.ERROR("HDFS path {0} is a file, not a directory", p.dest)
+        misc.ERROR("HDFS path {0} is a file, not a directory", p.src)
     elif ft == "NO_ACCESS":
-        misc.ERROR("HDFS path {0}: No access", p.dest)
+        misc.ERROR("HDFS path {0}: No access", p.src)
     elif ft != "DIRECTORY":
-        misc.ERROR("HDFS path {0}: Unknown type: '{1}'", p.dest, ft)
+        misc.ERROR("HDFS path {0}: Unknown type: '{1}'", p.src, ft)
 
     srcTree = buildTree.buildHdfsTree(webHDFS, p.src)
     

@@ -1,2 +1,6 @@
 PyYAML==3.12
 requests==2.12.4
+requests-kerberos==0.11.0
+
+# Yum equivalent: yum install PyYAML python-requests python-requests-kerberos
+

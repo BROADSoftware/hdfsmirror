@@ -45,7 +45,7 @@ def parseArg(mydir):
     
     parser.add_argument('--forceExt',  action='store_true')
     
-    parser.add_argument('--hdfsUser', required=False, default="hdfs")
+    parser.add_argument('--hdfsUser', required=False, default="hdfs", help="Default: 'hdfs'. Set to 'KERBEROS' to use Kerberos authentication")
     parser.add_argument('--hadoopConfDir', required=False, default="/etc/hadoop/conf")
     parser.add_argument('--webhdfsEndpoint', required=False)
 
@@ -110,7 +110,7 @@ class StatsThread(Thread):
     def run(self):
         while True:
             x = self.queue.qsize()
-            print("hdfsmirror: {0}/{1} files copied".format(self.allFiles - x, self.allFiles))
+            print("hdfsmirror: {0}/{1} new files copied".format(self.allFiles - x, self.allFiles))
             if x == 0 or  len(self.myThreads) <= 1: # If 1, this is myself. So, exit. (This is in error case, where all threads died while queue is not empty)
                 return
             time.sleep(2)

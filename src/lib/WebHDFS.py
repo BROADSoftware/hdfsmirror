@@ -23,28 +23,74 @@ import logging
 logger = logging.getLogger("hdfsmirror.WebHDFS")
 
 
+HAS_KERBEROS = False
+try:
+    from requests_kerberos import HTTPKerberosAuth
+    HAS_KERBEROS = True
+except ImportError:
+    pass
+
+
+
 class WebHDFS:
     
     def __init__(self, endpoint, hdfsUser):
         self.endpoint = endpoint
-        self.auth = "user.name=" + hdfsUser + "&"
+        self.delegationToken = None
+        self.auth = None
+        if hdfsUser == "KERBEROS":
+            self.kerberos = True
+            if not HAS_KERBEROS:
+                misc.ERROR("'python-requests-kerberos' package is not installed")
+        else :
+            self.kerberos = False
+            self.auth = "user.name=" + hdfsUser + "&"
         
          
     def test(self):
-        url = "http://{0}/webhdfs/v1/?{1}op=GETFILESTATUS".format(self.endpoint, self.auth)
         try:
-            resp = requests.get(url)
-            if resp.status_code == 200:
-                return (True, "")
-            else: 
-                return (False, "{0}  =>  Response code: {1}".format(url, resp.status_code))
+            if self.kerberos:
+                kerberos_auth = HTTPKerberosAuth()
+                url = "http://{0}/webhdfs/v1/?op=GETDELEGATIONTOKEN".format(self.endpoint)
+                resp = requests.get(url, auth=kerberos_auth)
+                logger.debug(url + " -> " + str(resp.status_code)) 
+                if resp.status_code == 200:
+                    result = resp.json()
+                    print result
+                    self.delegationToken = result['Token']['urlString']
+                    self.auth = "delegation=" + self.delegationToken + "&"
+                    return (True, "")
+                elif resp.status_code == 401:
+                    return (False, "{0}  =>  Response code: {1} (May be you need to perform 'kinit')".format(url, resp.status_code))
+                else: 
+                    return (False, "{0}  =>  Response code: {1}".format(url, resp.status_code))
+            else:
+                url = "http://{0}/webhdfs/v1/?{1}op=GETFILESTATUS".format(self.endpoint, self.auth)
+                resp = requests.get(url)
+                logger.debug(url + " -> " + str(resp.status_code)) 
+                if resp.status_code == 200:
+                    return (True, "")
+                elif resp.status_code == 401:
+                    return (False, "{0}  =>  Response code: {1} (May be KERBEROS authentication must be used)".format(url, resp.status_code))
+                else: 
+                    return (False, "{0}  =>  Response code: {1}".format(url, resp.status_code))
         except Exception as e:
-            return (False, "{0}  =>  Response code: {1}".format(url, e.strerror))
-                
+            if self.kerberos:
+                return (False, "{0}  =>  Error: {1}. Are you sure this cluster is secured by Kerberos ?".format(url, str(e)))
+            else:
+                return (False, "{0}  =>  Error: {1}".format(url, str(e)))
+
+
+    def close(self):
+        if self.kerberos and self.delegationToken != None:
+            url = "http://{0}/webhdfs/v1/?{1}op=CANCELDELEGATIONTOKEN&token={2}".format(self.endpoint, self.auth, self.delegationToken)
+            self.put(url)
+            
 
     def getPathTypeAndStatus(self, path):
         url = "http://{0}/webhdfs/v1{1}?{2}op=GETFILESTATUS".format(self.endpoint, path, self.auth)
         resp = requests.get(url)
+        logger.debug(url + " -> " + str(resp.status_code)) 
         if resp.status_code == 200:
             result = resp.json()
             fs = {}
@@ -64,6 +110,7 @@ class WebHDFS:
     
     def put(self, url):
         resp = requests.put(url, allow_redirects=False)
+        logger.debug(url + " -> " + str(resp.status_code)) 
         if resp.status_code != 200:  
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'", resp.status_code, url)
         
@@ -97,8 +144,8 @@ class WebHDFS:
            
     def getDirContent(self, path):
         url = "http://{0}/webhdfs/v1{1}?{2}op=LISTSTATUS".format(self.endpoint, path, self.auth)
-        logger.debug(url)
         resp = requests.get(url)
+        logger.debug(url + " -> " + str(resp.status_code)) 
         dirContent = {}
         dirContent['status'] = "OK"
         dirContent['files'] = []
@@ -138,14 +185,15 @@ class WebHDFS:
     def putFileToHdfs(self, localPath, hdfsPath, overwrite):
         logger.debug("putFileToHdfs(localPath={0}, hdfsPath={1})".format(localPath, hdfsPath))
         url = "http://{0}/webhdfs/v1{1}?{2}op=CREATE&overwrite={3}".format(self.endpoint, hdfsPath, self.auth, "true" if overwrite else "false")
-        logger.debug(url)
         resp = requests.put(url, allow_redirects=False)
+        logger.debug(url + " -> " + str(resp.status_code)) 
         if not resp.status_code == 307:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
         url2 = resp.headers['location']    
         logger.debug(url2)
         f = open(localPath, "rb")
         resp2 = requests.put(url2, data=f, headers={'content-type': 'application/octet-stream'})
+        logger.debug(url2 + " -> " + str(resp2.status_code)) 
         if not resp2.status_code == 201:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp2.status_code, url2))
            
@@ -155,8 +203,8 @@ class WebHDFS:
             misc.ERROR("Local file {0} already exists. Will not overwrite it!".format(localPath))
         f = open(localPath, "wb")
         url = "http://{0}/webhdfs/v1{1}?{2}op=OPEN".format(self.endpoint, hdfsPath, self.auth)
-        logger.debug(url)
         resp = requests.get(url, allow_redirects=True, stream=True)
+        logger.debug(url + " -> " + str(resp.status_code)) 
         if not resp.status_code == 200:
             misc.ERROR("Invalid returned http code '{0}' when calling '{1}'".format(resp.status_code, url))
         for chunk in resp.iter_content(chunk_size=10240, decode_unicode=False):
@@ -204,7 +252,8 @@ def lookup(p):
                 return webHDFS
             else:
                 errors.append(err)
-        misc.ERROR("Unable to find a valid 'webhdfs_endpoint' in: " + p.webhdfsEndpoint + " (" + str(errors) + ")")
+                
+        misc.ERROR("Unable to find a valid 'webhdfs_endpoint' in: " + str(p.webhdfsEndpoint) + " (" + str(errors) + ")")
     
     
     
