@@ -56,7 +56,6 @@ class WebHDFS:
                 logger.debug(url + " -> " + str(resp.status_code)) 
                 if resp.status_code == 200:
                     result = resp.json()
-                    print result
                     self.delegationToken = result['Token']['urlString']
                     self.auth = "delegation=" + self.delegationToken + "&"
                     return (True, "")

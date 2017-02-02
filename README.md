@@ -62,7 +62,7 @@ Simply launch hdfsput.py, or hdfsget.py
 	  --mode MODE           mode for all files.
 	  --directoryMode DIRECTORYMODE
 	  --forceExt
-	  --hdfsUser HDFSUSER
+	  --hdfsUser HDFSUSER   Default: 'hdfs'. Set to 'KERBEROS' to use Kerberos
 	  --hadoopConfDir HADOOPCONFDIR
 	  --webhdfsEndpoint WEBHDFSENDPOINT
 	  
@@ -97,8 +97,8 @@ Here is a short explanation of the options:
 
 * `directoryMode:` permission for directories. (owner and group will the same as files). 
 
-* `hdfsUser:` Default: "hdfs". This user on behalf all HDFS operation will be performed. Of course must be able to read an write on concerned folder.
-
+* `hdfsUser:` Default: "hdfs". This user on behalf all HDFS operation will be performed. Of course must be able to read an write on concerned folder. Can also accept a special value: `KERBEROS`. In such case, kerberos authentication is used. User must of course have obtained a valid ticket, by issuing a `kinit` command.
+ 
 * `hadoopConfDir:` Default: "/etc/hadoop/conf" Refer to 'Namenode lookup' below.
 
 * `webHdfsEndpoint:` Refer to 'Namenode lookup' below.
@@ -116,6 +116,12 @@ You can set an alternate configuration folder by using the `--hadoopConfDir` opt
 Using this last method will allow you to use hdfsmirror.py from outside your cluster, without local HDFS client configuration. But, keep in mind the WebHDFS API need to be able to reach directly not only the namenode, but also all datanodes of the target cluster.
 
 `--webHdfsEndpoint` value could also be a comma separated list of entry points, which will be checked up to a valid one. This will allow Namenode H.A. handling. 
+
+## Kerberos support.
+
+hdfsmirror can access protected Hadoop cluster where Kerberos is enabled. Simply acquire a valid ticket by using `kinit`, as for any other hadoop access and provide the `--hdfsUser` parameter with the special value `KERBEROS`.
+
+All operations will be performed on behalf of the user defined by the the ticket.
 
 ## License
 
